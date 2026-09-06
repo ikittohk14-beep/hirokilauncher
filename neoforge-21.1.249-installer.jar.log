@@ -1,0 +1,441 @@
+JVM info: Arch Linux - 26.0.2 - 26.0.2
+java.net.preferIPv4Stack=true
+Current Time: 06/09/2026 13:28:00
+Host: maven.neoforged.net [37.19.202.44]
+Host: libraries.minecraft.net [150.171.109.197]
+Host: launchermeta.mojang.com [13.107.253.53, 13.107.226.53]
+Host: piston-meta.mojang.com [150.171.109.197]
+Host: sessionserver.mojang.com [150.171.109.197]
+Found java version 26.0.2
+Target Directory: /home/ikitto/.local/share/hiroki-launcher/game_data
+Extracting json
+Considering minecraft client jar
+Downloading libraries
+Found 0 additional library directories
+Considering library net.neoforged.fancymodloader:earlydisplay:4.0.44
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/fancymodloader/earlydisplay/4.0.44/earlydisplay-4.0.44.jar exists. Checksum valid.
+Considering library net.neoforged.fancymodloader:loader:4.0.44
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/fancymodloader/loader/4.0.44/loader-4.0.44.jar exists. Checksum valid.
+Considering library net.neoforged.accesstransformers:at-modlauncher:10.0.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/accesstransformers/at-modlauncher/10.0.1/at-modlauncher-10.0.1.jar exists. Checksum valid.
+Considering library net.neoforged:accesstransformers:10.0.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/accesstransformers/10.0.1/accesstransformers-10.0.1.jar exists. Checksum valid.
+Considering library net.neoforged:bus:8.0.5
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/bus/8.0.5/bus-8.0.5.jar exists. Checksum valid.
+Considering library net.neoforged:coremods:7.0.3
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/coremods/7.0.3/coremods-7.0.3.jar exists. Checksum valid.
+Considering library cpw.mods:modlauncher:11.0.5
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/cpw/mods/modlauncher/11.0.5/modlauncher-11.0.5.jar exists. Checksum valid.
+Considering library net.neoforged:mergetool:2.0.0:api
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/mergetool/2.0.0/mergetool-2.0.0-api.jar exists. Checksum valid.
+Considering library com.electronwill.night-config:toml:3.8.3
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/electronwill/night-config/toml/3.8.3/toml-3.8.3.jar exists. Checksum valid.
+Considering library com.electronwill.night-config:core:3.8.3
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/electronwill/night-config/core/3.8.3/core-3.8.3.jar exists. Checksum valid.
+Considering library net.neoforged:JarJarSelector:0.4.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/JarJarSelector/0.4.1/JarJarSelector-0.4.1.jar exists. Checksum valid.
+Considering library net.neoforged:JarJarMetadata:0.4.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/JarJarMetadata/0.4.1/JarJarMetadata-0.4.1.jar exists. Checksum valid.
+Considering library org.apache.maven:maven-artifact:3.8.5
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/maven/maven-artifact/3.8.5/maven-artifact-3.8.5.jar exists. Checksum valid.
+Considering library net.jodah:typetools:0.6.3
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/jodah/typetools/0.6.3/typetools-0.6.3.jar exists. Checksum valid.
+Considering library net.minecrell:terminalconsoleappender:1.3.0
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/minecrell/terminalconsoleappender/1.3.0/terminalconsoleappender-1.3.0.jar exists. Checksum valid.
+Considering library net.fabricmc:sponge-mixin:0.15.2+mixin.0.8.7
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/fabricmc/sponge-mixin/0.15.2+mixin.0.8.7/sponge-mixin-0.15.2+mixin.0.8.7.jar exists. Checksum valid.
+Considering library org.openjdk.nashorn:nashorn-core:15.4
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/openjdk/nashorn/nashorn-core/15.4/nashorn-core-15.4.jar exists. Checksum valid.
+Considering library org.apache.commons:commons-lang3:3.14.0
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/commons/commons-lang3/3.14.0/commons-lang3-3.14.0.jar exists. Checksum valid.
+Considering library cpw.mods:bootstraplauncher:2.0.2
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/cpw/mods/bootstraplauncher/2.0.2/bootstraplauncher-2.0.2.jar exists. Checksum valid.
+Considering library cpw.mods:securejarhandler:3.0.8
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/cpw/mods/securejarhandler/3.0.8/securejarhandler-3.0.8.jar exists. Checksum valid.
+Considering library org.ow2.asm:asm-commons:9.10.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm-commons/9.10.1/asm-commons-9.10.1.jar exists. Checksum valid.
+Considering library org.ow2.asm:asm-util:9.10.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm-util/9.10.1/asm-util-9.10.1.jar exists. Checksum valid.
+Considering library org.ow2.asm:asm-analysis:9.10.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm-analysis/9.10.1/asm-analysis-9.10.1.jar exists. Checksum valid.
+Considering library org.ow2.asm:asm-tree:9.10.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm-tree/9.10.1/asm-tree-9.10.1.jar exists. Checksum valid.
+Considering library org.ow2.asm:asm:9.10.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm/9.10.1/asm-9.10.1.jar exists. Checksum valid.
+Considering library net.neoforged:JarJarFileSystems:0.4.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/JarJarFileSystems/0.4.1/JarJarFileSystems-0.4.1.jar exists. Checksum valid.
+Considering library net.sf.jopt-simple:jopt-simple:5.0.4
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/sf/jopt-simple/jopt-simple/5.0.4/jopt-simple-5.0.4.jar exists. Checksum valid.
+Considering library org.slf4j:slf4j-api:2.0.9
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/slf4j/slf4j-api/2.0.9/slf4j-api-2.0.9.jar exists. Checksum valid.
+Considering library org.antlr:antlr4-runtime:4.13.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/antlr/antlr4-runtime/4.13.1/antlr4-runtime-4.13.1.jar exists. Checksum valid.
+Considering library com.mojang:logging:1.2.7
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/mojang/logging/1.2.7/logging-1.2.7.jar exists. Checksum valid.
+Considering library org.apache.logging.log4j:log4j-slf4j2-impl:2.22.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/logging/log4j/log4j-slf4j2-impl/2.22.1/log4j-slf4j2-impl-2.22.1.jar exists. Checksum valid.
+Considering library org.apache.logging.log4j:log4j-core:2.22.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/logging/log4j/log4j-core/2.22.1/log4j-core-2.22.1.jar exists. Checksum valid.
+Considering library org.apache.logging.log4j:log4j-api:2.22.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/logging/log4j/log4j-api/2.22.1/log4j-api-2.22.1.jar exists. Checksum valid.
+Considering library org.jline:jline-reader:3.20.0
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/jline/jline-reader/3.20.0/jline-reader-3.20.0.jar exists. Checksum valid.
+Considering library org.jline:jline-terminal:3.20.0
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/jline/jline-terminal/3.20.0/jline-terminal-3.20.0.jar exists. Checksum valid.
+Considering library commons-io:commons-io:2.15.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/commons-io/commons-io/2.15.1/commons-io-2.15.1.jar exists. Checksum valid.
+Considering library net.minecraftforge:srgutils:0.4.15
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/minecraftforge/srgutils/0.4.15/srgutils-0.4.15.jar exists. Checksum valid.
+Considering library com.google.guava:guava:32.1.2-jre
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/guava/guava/32.1.2-jre/guava-32.1.2-jre.jar exists. Checksum valid.
+Considering library com.google.guava:failureaccess:1.0.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/guava/failureaccess/1.0.1/failureaccess-1.0.1.jar exists. Checksum valid.
+Considering library com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar exists. Checksum valid.
+Considering library com.google.code.findbugs:jsr305:3.0.2
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar exists. Checksum valid.
+Considering library org.checkerframework:checker-qual:3.33.0
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/checkerframework/checker-qual/3.33.0/checker-qual-3.33.0.jar exists. Checksum valid.
+Considering library com.google.errorprone:error_prone_annotations:2.18.0
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/errorprone/error_prone_annotations/2.18.0/error_prone_annotations-2.18.0.jar exists. Checksum valid.
+Considering library com.google.j2objc:j2objc-annotations:2.8
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/j2objc/j2objc-annotations/2.8/j2objc-annotations-2.8.jar exists. Checksum valid.
+Considering library com.google.code.gson:gson:2.10.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar exists. Checksum valid.
+Considering library org.codehaus.plexus:plexus-utils:3.3.0
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/codehaus/plexus/plexus-utils/3.3.0/plexus-utils-3.3.0.jar exists. Checksum valid.
+Considering library com.machinezoo.noexception:noexception:1.7.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/machinezoo/noexception/noexception/1.7.1/noexception-1.7.1.jar exists. Checksum valid.
+Considering library net.neoforged.fancymodloader:earlydisplay:4.0.44
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/fancymodloader/earlydisplay/4.0.44/earlydisplay-4.0.44.jar exists. Checksum valid.
+Considering library net.neoforged.fancymodloader:loader:4.0.44
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/fancymodloader/loader/4.0.44/loader-4.0.44.jar exists. Checksum valid.
+Considering library net.neoforged.accesstransformers:at-modlauncher:10.0.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/accesstransformers/at-modlauncher/10.0.1/at-modlauncher-10.0.1.jar exists. Checksum valid.
+Considering library net.neoforged:accesstransformers:10.0.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/accesstransformers/10.0.1/accesstransformers-10.0.1.jar exists. Checksum valid.
+Considering library net.neoforged:bus:8.0.5
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/bus/8.0.5/bus-8.0.5.jar exists. Checksum valid.
+Considering library net.neoforged:coremods:7.0.3
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/coremods/7.0.3/coremods-7.0.3.jar exists. Checksum valid.
+Considering library cpw.mods:modlauncher:11.0.5
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/cpw/mods/modlauncher/11.0.5/modlauncher-11.0.5.jar exists. Checksum valid.
+Considering library net.neoforged:mergetool:2.0.0:api
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/mergetool/2.0.0/mergetool-2.0.0-api.jar exists. Checksum valid.
+Considering library com.electronwill.night-config:toml:3.8.3
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/electronwill/night-config/toml/3.8.3/toml-3.8.3.jar exists. Checksum valid.
+Considering library com.electronwill.night-config:core:3.8.3
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/electronwill/night-config/core/3.8.3/core-3.8.3.jar exists. Checksum valid.
+Considering library net.neoforged:JarJarSelector:0.4.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/JarJarSelector/0.4.1/JarJarSelector-0.4.1.jar exists. Checksum valid.
+Considering library net.neoforged:JarJarMetadata:0.4.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/JarJarMetadata/0.4.1/JarJarMetadata-0.4.1.jar exists. Checksum valid.
+Considering library org.apache.maven:maven-artifact:3.8.5
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/maven/maven-artifact/3.8.5/maven-artifact-3.8.5.jar exists. Checksum valid.
+Considering library net.jodah:typetools:0.6.3
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/jodah/typetools/0.6.3/typetools-0.6.3.jar exists. Checksum valid.
+Considering library net.minecrell:terminalconsoleappender:1.3.0
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/minecrell/terminalconsoleappender/1.3.0/terminalconsoleappender-1.3.0.jar exists. Checksum valid.
+Considering library net.fabricmc:sponge-mixin:0.15.2+mixin.0.8.7
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/fabricmc/sponge-mixin/0.15.2+mixin.0.8.7/sponge-mixin-0.15.2+mixin.0.8.7.jar exists. Checksum valid.
+Considering library org.openjdk.nashorn:nashorn-core:15.4
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/openjdk/nashorn/nashorn-core/15.4/nashorn-core-15.4.jar exists. Checksum valid.
+Considering library org.apache.commons:commons-lang3:3.14.0
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/commons/commons-lang3/3.14.0/commons-lang3-3.14.0.jar exists. Checksum valid.
+Considering library cpw.mods:bootstraplauncher:2.0.2
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/cpw/mods/bootstraplauncher/2.0.2/bootstraplauncher-2.0.2.jar exists. Checksum valid.
+Considering library cpw.mods:securejarhandler:3.0.8
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/cpw/mods/securejarhandler/3.0.8/securejarhandler-3.0.8.jar exists. Checksum valid.
+Considering library org.ow2.asm:asm-commons:9.10.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm-commons/9.10.1/asm-commons-9.10.1.jar exists. Checksum valid.
+Considering library org.ow2.asm:asm-util:9.10.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm-util/9.10.1/asm-util-9.10.1.jar exists. Checksum valid.
+Considering library org.ow2.asm:asm-analysis:9.10.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm-analysis/9.10.1/asm-analysis-9.10.1.jar exists. Checksum valid.
+Considering library org.ow2.asm:asm-tree:9.10.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm-tree/9.10.1/asm-tree-9.10.1.jar exists. Checksum valid.
+Considering library org.ow2.asm:asm:9.10.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm/9.10.1/asm-9.10.1.jar exists. Checksum valid.
+Considering library net.neoforged:JarJarFileSystems:0.4.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/JarJarFileSystems/0.4.1/JarJarFileSystems-0.4.1.jar exists. Checksum valid.
+Considering library net.sf.jopt-simple:jopt-simple:5.0.4
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/sf/jopt-simple/jopt-simple/5.0.4/jopt-simple-5.0.4.jar exists. Checksum valid.
+Considering library org.slf4j:slf4j-api:2.0.9
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/slf4j/slf4j-api/2.0.9/slf4j-api-2.0.9.jar exists. Checksum valid.
+Considering library org.antlr:antlr4-runtime:4.13.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/antlr/antlr4-runtime/4.13.1/antlr4-runtime-4.13.1.jar exists. Checksum valid.
+Considering library com.mojang:logging:1.2.7
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/mojang/logging/1.2.7/logging-1.2.7.jar exists. Checksum valid.
+Considering library org.apache.logging.log4j:log4j-slf4j2-impl:2.22.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/logging/log4j/log4j-slf4j2-impl/2.22.1/log4j-slf4j2-impl-2.22.1.jar exists. Checksum valid.
+Considering library org.apache.logging.log4j:log4j-core:2.22.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/logging/log4j/log4j-core/2.22.1/log4j-core-2.22.1.jar exists. Checksum valid.
+Considering library org.apache.logging.log4j:log4j-api:2.22.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/logging/log4j/log4j-api/2.22.1/log4j-api-2.22.1.jar exists. Checksum valid.
+Considering library org.jline:jline-reader:3.20.0
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/jline/jline-reader/3.20.0/jline-reader-3.20.0.jar exists. Checksum valid.
+Considering library org.jline:jline-terminal:3.20.0
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/jline/jline-terminal/3.20.0/jline-terminal-3.20.0.jar exists. Checksum valid.
+Considering library commons-io:commons-io:2.15.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/commons-io/commons-io/2.15.1/commons-io-2.15.1.jar exists. Checksum valid.
+Considering library net.minecraftforge:srgutils:0.4.15
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/minecraftforge/srgutils/0.4.15/srgutils-0.4.15.jar exists. Checksum valid.
+Considering library com.google.guava:guava:32.1.2-jre
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/guava/guava/32.1.2-jre/guava-32.1.2-jre.jar exists. Checksum valid.
+Considering library com.google.guava:failureaccess:1.0.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/guava/failureaccess/1.0.1/failureaccess-1.0.1.jar exists. Checksum valid.
+Considering library com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/guava/listenablefuture/9999.0-empty-to-avoid-conflict-with-guava/listenablefuture-9999.0-empty-to-avoid-conflict-with-guava.jar exists. Checksum valid.
+Considering library com.google.code.findbugs:jsr305:3.0.2
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/code/findbugs/jsr305/3.0.2/jsr305-3.0.2.jar exists. Checksum valid.
+Considering library org.checkerframework:checker-qual:3.33.0
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/checkerframework/checker-qual/3.33.0/checker-qual-3.33.0.jar exists. Checksum valid.
+Considering library com.google.errorprone:error_prone_annotations:2.18.0
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/errorprone/error_prone_annotations/2.18.0/error_prone_annotations-2.18.0.jar exists. Checksum valid.
+Considering library com.google.j2objc:j2objc-annotations:2.8
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/j2objc/j2objc-annotations/2.8/j2objc-annotations-2.8.jar exists. Checksum valid.
+Considering library com.google.code.gson:gson:2.10.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar exists. Checksum valid.
+Considering library org.codehaus.plexus:plexus-utils:3.3.0
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/codehaus/plexus/plexus-utils/3.3.0/plexus-utils-3.3.0.jar exists. Checksum valid.
+Considering library com.machinezoo.noexception:noexception:1.7.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/machinezoo/noexception/noexception/1.7.1/noexception-1.7.1.jar exists. Checksum valid.
+Considering library net.neoforged:neoform:1.21.1-20240808.144430@zip
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/neoform/1.21.1-20240808.144430/neoform-1.21.1-20240808.144430.zip exists. Checksum valid.
+Considering library net.neoforged.installertools:binarypatcher:2.1.2:fatjar
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/installertools/binarypatcher/2.1.2/binarypatcher-2.1.2-fatjar.jar exists. Checksum valid.
+Considering library net.neoforged:AutoRenamingTool:2.0.3:all
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/AutoRenamingTool/2.0.3/AutoRenamingTool-2.0.3-all.jar exists. Checksum valid.
+Considering library net.neoforged.installertools:installertools:2.1.2
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/installertools/installertools/2.1.2/installertools-2.1.2.jar exists. Checksum valid.
+Considering library net.neoforged:srgutils:1.0.0
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/srgutils/1.0.0/srgutils-1.0.0.jar exists. Checksum valid.
+Considering library net.md-5:SpecialSource:1.11.0
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/md-5/SpecialSource/1.11.0/SpecialSource-1.11.0.jar exists. Checksum valid.
+Considering library com.google.code.gson:gson:2.8.9
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/code/gson/gson/2.8.9/gson-2.8.9.jar exists. Checksum valid.
+Considering library de.siegmar:fastcsv:2.0.0
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/de/siegmar/fastcsv/2.0.0/fastcsv-2.0.0.jar exists. Checksum valid.
+Considering library org.ow2.asm:asm-commons:9.3
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm-commons/9.3/asm-commons-9.3.jar exists. Checksum valid.
+Considering library net.neoforged.installertools:cli-utils:2.1.2
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/installertools/cli-utils/2.1.2/cli-utils-2.1.2.jar exists. Checksum valid.
+Considering library com.google.guava:guava:20.0
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/guava/guava/20.0/guava-20.0.jar exists. Checksum valid.
+Considering library com.opencsv:opencsv:4.4
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/opencsv/opencsv/4.4/opencsv-4.4.jar exists. Checksum valid.
+Considering library org.ow2.asm:asm-analysis:9.3
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm-analysis/9.3/asm-analysis-9.3.jar exists. Checksum valid.
+Considering library org.ow2.asm:asm-tree:9.3
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm-tree/9.3/asm-tree-9.3.jar exists. Checksum valid.
+Considering library org.ow2.asm:asm:9.3
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm/9.3/asm-9.3.jar exists. Checksum valid.
+Considering library org.apache.commons:commons-text:1.3
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/commons/commons-text/1.3/commons-text-1.3.jar exists. Checksum valid.
+Considering library org.apache.commons:commons-lang3:3.8.1
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar exists. Checksum valid.
+Considering library commons-beanutils:commons-beanutils:1.9.3
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/commons-beanutils/commons-beanutils/1.9.3/commons-beanutils-1.9.3.jar exists. Checksum valid.
+Considering library org.apache.commons:commons-collections4:4.2
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/commons/commons-collections4/4.2/commons-collections4-4.2.jar exists. Checksum valid.
+Considering library commons-logging:commons-logging:1.2
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/commons-logging/commons-logging/1.2/commons-logging-1.2.jar exists. Checksum valid.
+Considering library commons-collections:commons-collections:3.2.2
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar exists. Checksum valid.
+Considering library net.neoforged.installertools:jarsplitter:2.1.2
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/installertools/jarsplitter/2.1.2/jarsplitter-2.1.2.jar exists. Checksum valid.
+Considering library net.neoforged:neoforge:21.1.249:universal
+File /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/neoforge/21.1.249/neoforge-21.1.249-universal.jar exists. Checksum valid.
+Created Temporary Directory: /tmp/neoforge_installer17338171012217419085
+  Extracting: /data/client.lzma
+Building Processors
+===============================================================================
+Processor: net.neoforged.installertools:installertools -> MCP_DATA
+  MainClass: net.neoforged.installertools.ConsoleTool
+  Classpath:
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/installertools/installertools/2.1.2/installertools-2.1.2.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/installertools/installertools/2.1.2/installertools-2.1.2.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/srgutils/1.0.0/srgutils-1.0.0.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/md-5/SpecialSource/1.11.0/SpecialSource-1.11.0.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/sf/jopt-simple/jopt-simple/5.0.4/jopt-simple-5.0.4.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/code/gson/gson/2.8.9/gson-2.8.9.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/de/siegmar/fastcsv/2.0.0/fastcsv-2.0.0.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm-commons/9.3/asm-commons-9.3.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/installertools/cli-utils/2.1.2/cli-utils-2.1.2.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/guava/guava/20.0/guava-20.0.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/opencsv/opencsv/4.4/opencsv-4.4.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm-analysis/9.3/asm-analysis-9.3.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm-tree/9.3/asm-tree-9.3.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm/9.3/asm-9.3.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/commons/commons-text/1.3/commons-text-1.3.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/commons-beanutils/commons-beanutils/1.9.3/commons-beanutils-1.9.3.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/commons/commons-collections4/4.2/commons-collections4-4.2.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/commons-logging/commons-logging/1.2/commons-logging-1.2.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar
+  Args: --task, MCP_DATA, --input, /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/neoform/1.21.1-20240808.144430/neoform-1.21.1-20240808.144430.zip, --output, /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/neoform/1.21.1-20240808.144430/neoform-1.21.1-20240808.144430-mappings.txt, --key, mappings
+Task: MCP_DATA
+Input:  /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/neoform/1.21.1-20240808.144430/neoform-1.21.1-20240808.144430.zip
+Output: /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/neoform/1.21.1-20240808.144430/neoform-1.21.1-20240808.144430-mappings.txt
+Key:    mappings
+Extracting: config/joined.tsrg
+===============================================================================
+Processor: net.neoforged.installertools:installertools -> DOWNLOAD_MOJMAPS
+  MainClass: net.neoforged.installertools.ConsoleTool
+  Classpath:
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/installertools/installertools/2.1.2/installertools-2.1.2.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/installertools/installertools/2.1.2/installertools-2.1.2.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/srgutils/1.0.0/srgutils-1.0.0.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/md-5/SpecialSource/1.11.0/SpecialSource-1.11.0.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/sf/jopt-simple/jopt-simple/5.0.4/jopt-simple-5.0.4.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/code/gson/gson/2.8.9/gson-2.8.9.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/de/siegmar/fastcsv/2.0.0/fastcsv-2.0.0.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm-commons/9.3/asm-commons-9.3.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/installertools/cli-utils/2.1.2/cli-utils-2.1.2.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/guava/guava/20.0/guava-20.0.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/opencsv/opencsv/4.4/opencsv-4.4.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm-analysis/9.3/asm-analysis-9.3.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm-tree/9.3/asm-tree-9.3.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm/9.3/asm-9.3.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/commons/commons-text/1.3/commons-text-1.3.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/commons-beanutils/commons-beanutils/1.9.3/commons-beanutils-1.9.3.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/commons/commons-collections4/4.2/commons-collections4-4.2.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/commons-logging/commons-logging/1.2/commons-logging-1.2.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar
+  Args: --task, DOWNLOAD_MOJMAPS, --version, 1.21.1, --side, client, --output, /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-mappings.txt
+Task: DOWNLOAD_MOJMAPS
+MC Version: 1.21.1
+Side:       client
+Output:     /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-mappings.txt
+Downloaded Mojang mappings for 1.21.1
+===============================================================================
+Processor: net.neoforged.installertools:installertools -> MERGE_MAPPING
+  MainClass: net.neoforged.installertools.ConsoleTool
+  Classpath:
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/installertools/installertools/2.1.2/installertools-2.1.2.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/installertools/installertools/2.1.2/installertools-2.1.2.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/srgutils/1.0.0/srgutils-1.0.0.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/md-5/SpecialSource/1.11.0/SpecialSource-1.11.0.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/sf/jopt-simple/jopt-simple/5.0.4/jopt-simple-5.0.4.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/code/gson/gson/2.8.9/gson-2.8.9.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/de/siegmar/fastcsv/2.0.0/fastcsv-2.0.0.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm-commons/9.3/asm-commons-9.3.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/installertools/cli-utils/2.1.2/cli-utils-2.1.2.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/google/guava/guava/20.0/guava-20.0.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/com/opencsv/opencsv/4.4/opencsv-4.4.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm-analysis/9.3/asm-analysis-9.3.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm-tree/9.3/asm-tree-9.3.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/ow2/asm/asm/9.3/asm-9.3.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/commons/commons-text/1.3/commons-text-1.3.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/commons/commons-lang3/3.8.1/commons-lang3-3.8.1.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/commons-beanutils/commons-beanutils/1.9.3/commons-beanutils-1.9.3.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/org/apache/commons/commons-collections4/4.2/commons-collections4-4.2.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/commons-logging/commons-logging/1.2/commons-logging-1.2.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/commons-collections/commons-collections/3.2.2/commons-collections-3.2.2.jar
+  Args: --task, MERGE_MAPPING, --left, /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/neoform/1.21.1-20240808.144430/neoform-1.21.1-20240808.144430-mappings.txt, --right, /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-mappings.txt, --output, /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/neoform/1.21.1-20240808.144430/neoform-1.21.1-20240808.144430-mappings-merged.txt, --classes, --fields, --methods, --reverse-right
+Task: MERGE_MAPPING
+Left:    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/neoform/1.21.1-20240808.144430/neoform-1.21.1-20240808.144430-mappings.txt
+         Reversed=false
+         null
+Right:   /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-mappings.txt
+         Reversed=true
+         null
+Classes: true
+Fields:  true
+Methods: true
+Params:  false
+Output:  /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/neoform/1.21.1-20240808.144430/neoform-1.21.1-20240808.144430-mappings-merged.txt
+===============================================================================
+Processor: net.neoforged.installertools:jarsplitter
+  MainClass: net.neoforged.jarsplitter.ConsoleTool
+  Classpath:
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/installertools/jarsplitter/2.1.2/jarsplitter-2.1.2.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/installertools/jarsplitter/2.1.2/jarsplitter-2.1.2.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/sf/jopt-simple/jopt-simple/5.0.4/jopt-simple-5.0.4.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/srgutils/1.0.0/srgutils-1.0.0.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/installertools/cli-utils/2.1.2/cli-utils-2.1.2.jar
+  Args: --input, /home/ikitto/.local/share/hiroki-launcher/game_data/versions/1.21.1/1.21.1.jar, --slim, /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-slim.jar, --extra, /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-extra.jar, --srg, /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/neoform/1.21.1-20240808.144430/neoform-1.21.1-20240808.144430-mappings-merged.txt
+Splitter: 
+  Input:    /home/ikitto/.local/share/hiroki-launcher/game_data/versions/1.21.1/1.21.1.jar
+  Slim:     /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-slim.jar
+  Data:     null
+  Extra:    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-extra.jar
+  Including data in extra
+  SRG:   /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/neoform/1.21.1-20240808.144430/neoform-1.21.1-20240808.144430-mappings-merged.txt
+  InputSha: 30c73b1c5da787909b2f73340419fdf13b9def88
+  SrgSha:   e4f52c8fd55aa6aa2b4d0e2b36d4327b9991b2c5
+  Slim Cache Hit
+  Extra Cache Miss
+Splitting 23519 files:
+===============================================================================
+Processor: net.neoforged:AutoRenamingTool
+  MainClass: net.neoforged.art.Main
+  Classpath:
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/AutoRenamingTool/2.0.3/AutoRenamingTool-2.0.3-all.jar
+    /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/AutoRenamingTool/2.0.3/AutoRenamingTool-2.0.3-all.jar
+  Args: --input, /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-slim.jar, --output, /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-srg.jar, --names, /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/neoform/1.21.1-20240808.144430/neoform-1.21.1-20240808.144430-mappings-merged.txt, --ann-fix, --ids-fix, --src-fix, --record-fix
+Forge Auto Renaming Tool v2.0.3
+log: null
+input: /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-slim.jar
+output: /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-srg.jar
+threads: 12
+Names: /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/neoforged/neoform/1.21.1-20240808.144430/neoform-1.21.1-20240808.144430-mappings-merged.txt(reversed: false)
+Fix Annotations: true
+Unfinal Parameters: false
+Fix Records: true
+Fix Identifiers: ALL
+Fix SourceFile: JAVA
+Fix Line Numbers: false
+Strip codesigning signatures: false
+Adding Libraries to Inheritance
+Reading Input: /home/ikitto/.local/share/hiroki-launcher/game_data/libraries/net/minecraft/client/1.21.1-20240808.144430/client-1.21.1-20240808.144430-slim.jar
+Processor: net.neoforged:AutoRenamingTool: Reading input jar
+Processor: net.neoforged:AutoRenamingTool: Processing entries
+Adding input to inheritance map
+Processing entries
+Can't Find Class: javax/annotation/ParametersAreNonnullByDefault
+Can't Find Class: org/slf4j/Marker
+Can't Find Class: it/unimi/dsi/fastutil/floats/FloatConsumer
+Can't Find Class: com/jcraft/jogg/SyncState
+Can't Find Class: com/mojang/brigadier/Message
+Can't Find Class: com/jcraft/jogg/Page
+Can't Find Class: com/jcraft/jogg/StreamState
+Can't Find Class: com/jcraft/jogg/Packet
+Can't Find Class: com/jcraft/jorbis/Info
+Can't Find Class: com/jcraft/jorbis/DspState
+Can't Find Class: javax/annotation/Nullable
+Can't Find Class: com/jcraft/jorbis/Block
+Can't Find Class: org/slf4j/Logger
+Can't Find Class: com/google/common/collect/Sets
+Can't Find Class: com/google/common/collect/Lists
+Can't Find Class: com/google/common/collect/Multimap
+Can't Find Class: com/google/common/collect/Maps
+Can't Find Class: com/google/common/collect/HashMultimap
+Can't Find Class: com/jcraft/jorbis/Comment
+Can't Find Class: org/lwjgl/BufferUtils
+Can't Find Class: com/mojang/serialization/Keyable
+Can't Find Class: com/mojang/serialization/Codec
+Can't Find Class: com/mojang/serialization/codecs/RecordCodecBuilder$Instance
+Can't Find Class: com/mojang/serialization/codecs/RecordCodecBuilder
+Can't Find Class: com/mojang/datafixers/Products$P3
+Can't Find Class: com/mojang/datafixers/Products
+Can't Find Class: com/mojang/serialization/MapCodec
+Can't Find Class: com/mojang/datafixers/kinds/App
+Can't Find Class: com/mojang/serialization/codecs/PrimitiveCodec
+Can't Find Class: org/joml/Vector3f
+Can't Find Class: com/mojang/datafixers/util/Function3
+Can't Find Class: com/mojang/datafixers/kinds/Applicative
+Can't Find Class: com/mojang/serialization/DataResult
+Can't Find Class: org/joml/Quaternionf
+Can't Find Class: org/joml/Vector3fc
+Can't Find Class: org/apache/commons/io/IOUtils
+Can't Find Class: com/mojang/logging/LogUtils
+Can't Find Class: org/joml/Quaternionfc
+Can't Find Class: com/mojang/authlib/minecraft/TelemetryPropertyContainer
+Can't Find Class: com/mojang/authlib/minecraft/TelemetrySession
+Can't Find Class: com/mojang/authlib/minecraft/TelemetryEvent
+Can't Find Class: com/mojang/authlib/minecraft/UserApiService
+Can't Find Class: it/unimi/dsi/fastutil/objects/Object2ObjectLinkedOpenHashMap
+Can't Find Class: com/google/common/base/Supplier
+ojang/logging/LogUtils

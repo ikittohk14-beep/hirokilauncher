@@ -1,0 +1,12 @@
+<svg width="256" height="256" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <g transform="translate(0.5, 3)">
+    <path 
+      d="M8 7 h2 v1 h-2 Z M14 7 h2 v1 h-2 Z M7 8 h4 v1 h-4 Z M13 8 h4 v1 h-4 Z M6 9 h12 v1 h-12 Z M6 10 h12 v1 h-12 Z M6 11 h12 v1 h-12 Z M7 12 h10 v1 h-10 Z M8 13 h8 v1 h-8 Z M9 14 h6 v1 h-6 Z M10 15 h4 v1 h-4 Z M11 16 h2 v1 h-2 Z" 
+      fill="#f85149" 
+    />
+    <path 
+      d="M3 6 h3 v1 h-3 Z M2 7 h2 v1 h-2 Z M2 8 h2 v1 h-2 Z M1 9 h2 v1 h-2 Z M1 10 h3 v1 h-3 Z M2 11 h3 v1 h-3 Z M3 12 h2 v1 h-2 Z M18 6 h3 v1 h-3 Z M20 7 h2 v1 h-2 Z M20 8 h2 v1 h-2 Z M21 9 h2 v1 h-2 Z M20 10 h3 v1 h-3 Z M19 11 h3 v1 h-3 Z M19 12 h2 v1 h-2 Z" 
+      fill="#ffffff" 
+    />
+  </g>
+</svg>

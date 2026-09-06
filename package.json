@@ -1,0 +1,76 @@
+{
+  "name": "hiroki-launcher",
+  "version": "1.0.0",
+  "description": "Modern Minecraft Launcher optimized for CachyOS and driftwm (Wayland)",
+  "type": "module",
+  "main": "dist-electron/main/index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "start": "electron . --ozone-platform-hint=auto --enable-features=WaylandWindowDecorations",
+    "dist:win": "tsc && vite build && electron-builder --win",
+    "dist:linux": "tsc && vite build && electron-builder --linux",
+    "dist:all": "tsc && vite build && electron-builder --linux --win"
+  },
+  "dependencies": {
+    "adm-zip": "^0.6.0",
+    "clsx": "^2.1.1",
+    "lucide-react": "^1.16.0",
+    "minecraft-server-util": "^5.4.4",
+    "nbt": "^0.8.1",
+    "prismarine-nbt": "^2.8.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-markdown": "^10.1.0",
+    "tailwind-merge": "^2.5.4",
+    "zustand": "^4.5.5"
+  },
+  "devDependencies": {
+    "@types/adm-zip": "^0.5.8",
+    "@types/node": "^22.7.5",
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.0",
+    "@vitejs/plugin-react": "^4.3.2",
+    "autoprefixer": "^10.4.20",
+    "electron": "^33.0.2",
+    "electron-builder": "^26.15.3",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.8",
+    "vite-plugin-electron": "^0.28.8",
+    "vite-plugin-electron-renderer": "^0.14.5"
+  },
+  "build": {
+    "appId": "com.ikitto.hirokilauncher",
+    "productName": "HirokiLauncher",
+    "directories": {
+      "output": "dist_electron_bin"
+    },
+    "files": [
+      "dist/**/*",
+      "dist-electron/**/*"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "build/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    },
+    "linux": {
+      "target": "tar.gz",
+      "icon": "build/icon.png",
+      "category": "Game"
+    }
+  },
+  "pnpm": {
+    "ignoredBuilds": [
+      "electron-winstaller"
+    ]
+  }
+}
