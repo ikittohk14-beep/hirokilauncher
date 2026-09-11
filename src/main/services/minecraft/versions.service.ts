@@ -54,12 +54,24 @@ export class VersionsService {
     const localCachePath = path.join(this.cacheDir, 'mojang_manifest.json');
 
     try {
-      const response = await fetch('https://piston-meta.mojang.com/mc/game/version_manifest_v2.json', {
-        headers: { 'User-Agent': 'HirokiLauncher/1.0' },
-        signal: AbortSignal.timeout(8000),
-      });
+      let response: Response | null = null;
+      try {
+        response = await fetch('https://piston-meta.mojang.com/mc/game/version_manifest_v2.json', {
+          headers: { 'User-Agent': 'HirokiLauncher/2.0.0 (MinecraftLauncher/1.0)' },
+          signal: AbortSignal.timeout(8000),
+        });
+      } catch (err) {
+        console.warn('[VersionsService] Mojang manifest fetch failed, trying BMCLAPI:', err);
+      }
 
-      if (response.ok) {
+      if (!response || !response.ok) {
+        response = await fetch('https://bmclapi2.bangbang93.com/mc/game/version_manifest_v2.json', {
+          headers: { 'User-Agent': 'HirokiLauncher/2.0.0 (MinecraftLauncher/1.0)' },
+          signal: AbortSignal.timeout(8000),
+        });
+      }
+
+      if (response && response.ok) {
         const manifest = (await response.json()) as MojangManifest;
         this.cachedMojangVersions = manifest.versions;
         // Save to cache

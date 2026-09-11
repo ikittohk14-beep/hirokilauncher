@@ -126,10 +126,30 @@ export class GameInstallerService {
       }
     }
 
-    // Download from Mojang
-    const manifestResp = await fetch('https://piston-meta.mojang.com/mc/game/version_manifest_v2.json');
-    if (!manifestResp.ok) {
-      throw new Error(`Failed to fetch version manifest from Mojang: ${manifestResp.status}`);
+    // Download from Mojang / BMCLAPI
+    let manifestResp: Response | null = null;
+    try {
+      manifestResp = await fetch('https://piston-meta.mojang.com/mc/game/version_manifest_v2.json', {
+        headers: { 'User-Agent': 'HirokiLauncher/2.0.0 (MinecraftLauncher/1.0)' },
+        signal: AbortSignal.timeout(8000),
+      });
+    } catch (e) {
+      console.warn('[GameInstaller] Mojang manifest fetch failed, trying BMCLAPI:', e);
+    }
+
+    if (!manifestResp || !manifestResp.ok) {
+      try {
+        manifestResp = await fetch('https://bmclapi2.bangbang93.com/mc/game/version_manifest_v2.json', {
+          headers: { 'User-Agent': 'HirokiLauncher/2.0.0 (MinecraftLauncher/1.0)' },
+          signal: AbortSignal.timeout(8000),
+        });
+      } catch (bmclErr) {
+        console.error('[GameInstaller] BMCLAPI manifest fetch failed:', bmclErr);
+      }
+    }
+
+    if (!manifestResp || !manifestResp.ok) {
+      throw new Error(`Failed to fetch version manifest from Mojang / BMCLAPI`);
     }
 
     const manifest = (await manifestResp.json()) as { versions: { id: string; url: string }[] };
@@ -138,9 +158,30 @@ export class GameInstallerService {
       throw new Error(`Version ${gameVersion} not found in Mojang manifest`);
     }
 
-    const detailResp = await fetch(versionEntry.url);
-    if (!detailResp.ok) {
-      throw new Error(`Failed to fetch details for ${gameVersion}: ${detailResp.status}`);
+    let detailResp: Response | null = null;
+    try {
+      detailResp = await fetch(versionEntry.url, {
+        headers: { 'User-Agent': 'HirokiLauncher/2.0.0 (MinecraftLauncher/1.0)' },
+        signal: AbortSignal.timeout(8000),
+      });
+    } catch (e) {
+      console.warn(`[GameInstaller] Detail fetch failed for ${versionEntry.url}, trying BMCLAPI:`, e);
+    }
+
+    if (!detailResp || !detailResp.ok) {
+      try {
+        const mirrorUrl = versionEntry.url.replace('https://piston-meta.mojang.com', 'https://bmclapi2.bangbang93.com');
+        detailResp = await fetch(mirrorUrl, {
+          headers: { 'User-Agent': 'HirokiLauncher/2.0.0 (MinecraftLauncher/1.0)' },
+          signal: AbortSignal.timeout(8000),
+        });
+      } catch (bmclDetailErr) {
+        console.error('[GameInstaller] BMCLAPI details fetch failed:', bmclDetailErr);
+      }
+    }
+
+    if (!detailResp || !detailResp.ok) {
+      throw new Error(`Failed to fetch details for ${gameVersion}`);
     }
 
     const details = (await detailResp.json()) as MojangVersionDetails;
@@ -170,12 +211,26 @@ export class GameInstallerService {
     // 2. Download client.jar
     const clientJarPath = path.join(versionsDir, instance.gameVersion, `${instance.gameVersion}.jar`);
     if (onProgress) onProgress({ step: 'Загрузка игрового клиента...', percentage: 10 });
-    await DownloaderService.getInstance().downloadFile({
-      url: vanillaDetails.downloads.client.url,
-      destPath: clientJarPath,
-      sha1: vanillaDetails.downloads.client.sha1,
-      size: vanillaDetails.downloads.client.size,
-    });
+    await DownloaderService.getInstance().downloadFile(
+      {
+        url: vanillaDetails.downloads.client.url,
+        destPath: clientJarPath,
+        sha1: vanillaDetails.downloads.client.sha1,
+        size: vanillaDetails.downloads.client.size,
+      },
+      (downloaded, total) => {
+        if (onProgress && total) {
+          const ratio = downloaded / total;
+          const pct = Math.min(20, Math.round(10 + ratio * 10));
+          const mbDownloaded = (downloaded / (1024 * 1024)).toFixed(1);
+          const mbTotal = (total / (1024 * 1024)).toFixed(1);
+          onProgress({
+            step: `Загрузка игрового клиента (${mbDownloaded}MB / ${mbTotal}MB)...`,
+            percentage: pct,
+          });
+        }
+      }
+    );
 
     // 3. Process libraries
     if (onProgress) onProgress({ step: 'Проверка библиотек игры...', percentage: 20 });
