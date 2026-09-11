@@ -274,6 +274,16 @@ export class JavaService {
       return { path: exact.path, majorVersion: exact.majorVersion };
     }
 
+    // Best detected installation fallback if no exact match found
+    if (installations.length > 0) {
+      const best = installations[0];
+      const installHint = process.platform === 'win32'
+        ? 'Рекомендуется установить подходящую версию Java (например, Eclipse Temurin или Azul Zulu).'
+        : 'Установите подходящую версию Java (например, paru -S jre8-openjdk).';
+      const warning = `Для Minecraft ${gameVersion} требуется Java ${requiredMajor}, но в системе найдена только Java ${best.majorVersion} (${best.path}). ${installHint}`;
+      return { path: best.path, majorVersion: best.majorVersion, warning };
+    }
+
     // 3. Fallback to settings.javaPath or default system Java
     const defaultSysJava = process.platform === 'win32' ? 'javaw.exe' : '/usr/bin/java';
     const fallbackPath = settingsJavaPath && fs.existsSync(settingsJavaPath) ? settingsJavaPath : defaultSysJava;
@@ -286,6 +296,13 @@ export class JavaService {
         ? 'Установите Java 8 (например, Eclipse Temurin 8 или Azul Zulu 8).'
         : 'Установите Java 8: paru -S jre8-openjdk';
       warning = `ВНИМАНИЕ: Для Minecraft ${gameVersion} требуется Java 8, но в системе используется Java ${fallbackMajor} (${fallbackPath}). Старые версии Minecraft крашатся на Java 9+. ${installHint}`;
+    }
+
+    if (!fs.existsSync(fallbackPath) && installations.length === 0) {
+      const installHint = process.platform === 'win32'
+        ? 'Пожалуйста, установите Java (например, Eclipse Temurin 17 или 21).'
+        : 'Пожалуйста, установите Java через системный пакетный менеджер (например: paru -S jre17-openjdk).';
+      throw new Error(`Java не обнаружена в системе (${fallbackPath} не найден). ${installHint}`);
     }
 
     return { path: fallbackPath, majorVersion: fallbackMajor, warning };

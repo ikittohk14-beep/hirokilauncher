@@ -44,6 +44,32 @@ export class DownloaderService {
   /**
    * Downloads a single file with integrity check and atomic write
    */
+  private async safeMoveFile(src: string, dest: string, maxRetries = 5): Promise<void> {
+    for (let i = 0; i < maxRetries; i++) {
+      try {
+        if (fs.existsSync(dest)) {
+          fs.unlinkSync(dest);
+        }
+        fs.renameSync(src, dest);
+        return;
+      } catch (err: any) {
+        if ((err.code === 'EPERM' || err.code === 'EBUSY' || err.code === 'EACCES') && i < maxRetries - 1) {
+          await new Promise((r) => setTimeout(r, 100 * (i + 1)));
+          continue;
+        }
+        try {
+          fs.copyFileSync(src, dest);
+          if (fs.existsSync(src)) {
+            try { fs.unlinkSync(src); } catch {}
+          }
+          return;
+        } catch {
+          throw err;
+        }
+      }
+    }
+  }
+
   public async downloadFile(task: DownloadTask): Promise<void> {
     const dir = path.dirname(task.destPath);
     if (!fs.existsSync(dir)) {
@@ -66,11 +92,11 @@ export class DownloaderService {
       }
     }
 
-    const tempPath = `${task.destPath}.part-${Date.now()}`;
+    const tempPath = `${task.destPath}.part-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
 
     try {
       const response = await fetch(task.url, {
-        headers: { 'User-Agent': 'HirokiLauncher/1.0' },
+        headers: { 'User-Agent': 'HirokiLauncher/2.0.0' },
       });
 
       if (!response.ok || !response.body) {
@@ -102,11 +128,8 @@ export class DownloaderService {
         throw new Error(`SHA512 mismatch for ${task.url}`);
       }
 
-      // Atomic rename
-      if (fs.existsSync(task.destPath)) {
-        fs.unlinkSync(task.destPath);
-      }
-      fs.renameSync(tempPath, task.destPath);
+      // Safe atomic move with Windows locks fallback
+      await this.safeMoveFile(tempPath, task.destPath);
     } catch (error) {
       console.error(`[DownloaderService] Error downloading ${task.url}:`, error);
       if (fs.existsSync(tempPath)) {

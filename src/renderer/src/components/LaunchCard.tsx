@@ -7,6 +7,7 @@ interface LaunchCardProps {
   instanceName: string
   instanceVersion: string
   isLaunching: boolean
+  isRunning?: boolean
   launchProgress: LaunchProgress | null
   onLaunch: () => void
   onKill: () => void
@@ -35,6 +36,7 @@ const LaunchCard: React.FC<LaunchCardProps> = ({
   instanceName,
   instanceVersion,
   isLaunching,
+  isRunning,
   launchProgress,
   onLaunch,
   onKill,
@@ -43,9 +45,10 @@ const LaunchCard: React.FC<LaunchCardProps> = ({
 
   // Derived state based on props
   let state: LaunchState = 'idle'
-  if (isLaunching) {
-    if (launchProgress) state = 'booting'
-    else state = 'ingame'
+  if (isRunning) {
+    state = 'ingame'
+  } else if (isLaunching || launchProgress) {
+    state = 'booting'
   }
 
   const handleClick = () => {
@@ -94,14 +97,19 @@ const LaunchCard: React.FC<LaunchCardProps> = ({
   }
 
   const getMainTitle = (): string => {
-    if (state === 'booting' || launchProgress) return 'ЗАПУСК...'
     if (state === 'ingame') return 'В ИГРЕ ▶'
+    if (state === 'booting' || launchProgress) {
+      if (launchProgress?.percentage && launchProgress.percentage > 0) {
+        return `ЗАГРУЗКА ${Math.round(launchProgress.percentage)}%`
+      }
+      return 'ЗАПУСК...'
+    }
     return 'ЗАПУСТИТЬ'
   }
 
   const getSubLine = (): string => {
     if (launchProgress && launchProgress.step) return launchProgress.step.toUpperCase()
-    if (state === 'booting') return 'ПОДГОТОВКА...'
+    if (state === 'booting') return 'ПОДГОТОВКА ФАЙЛОВ...'
     if (state === 'ingame') return 'КЛИК ДЛЯ ОСТАНОВКИ'
     return `${instanceName.toUpperCase()} · ${instanceVersion}`
   }

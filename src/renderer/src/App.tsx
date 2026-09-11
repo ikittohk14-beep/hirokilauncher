@@ -108,8 +108,13 @@ export const App: React.FC = () => {
       runningInstanceIdRef.current = instanceId;
       startTimeRef.current = Date.now();
       await window.electronAPI.launcher.launch(instanceId);
-    } catch (err) {
+    } catch (err: any) {
       console.error('[App] Launch invocation error:', err);
+      setIsRunning(false);
+      setLaunchProgress(null);
+      runningInstanceIdRef.current = null;
+      startTimeRef.current = null;
+      alert(`Ошибка при запуске игры:\n${err?.message || String(err)}`);
     }
   };
 

@@ -119,7 +119,7 @@ export const BentoGrid: React.FC<BentoGridProps> = ({
     shelf: <InstanceShelf isEditMode={isEditMode} tileShape={settings?.tileShape || "compact"} instances={instances} selectedInstance={selectedInstance} onSelect={onSelectInstance} onAdd={onAddInstance} />,
     art: <ArtCard username={currentAccount?.username} />,
     mods: <ModsCard instanceId={selectedInstance?.id} totalMods={0} onClick={() => { if (!isEditMode && onManageInstance && selectedInstance) onManageInstance(selectedInstance.id) }} />,
-    launch: <LaunchCard instanceName={selectedInstance?.name ?? 'UNKNOWN'} instanceVersion={selectedInstance?.gameVersion ?? ''} isLaunching={launchStatus !== null || !!isRunning} launchProgress={isRunning && !launchStatus?.step?.includes("ПОДГОТОВКА") ? null : launchStatus} onLaunch={() => { if (!isEditMode && selectedInstance) onLaunch(selectedInstance.id) }} onKill={() => { if (!isEditMode && selectedInstance) onKill(selectedInstance.id) }} />
+    launch: <LaunchCard instanceName={selectedInstance?.name ?? 'UNKNOWN'} instanceVersion={selectedInstance?.gameVersion ?? ''} isLaunching={launchStatus !== null || !!isRunning} isRunning={!!isRunning} launchProgress={isRunning ? null : launchStatus} onLaunch={() => { if (!isEditMode && selectedInstance) onLaunch(selectedInstance.id) }} onKill={() => { if (!isEditMode && selectedInstance) onKill(selectedInstance.id) }} />
   };
 
   if (!layout.length) return null;

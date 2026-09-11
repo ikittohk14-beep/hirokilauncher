@@ -1,5 +1,6 @@
 import { LocalProxy } from "./proxy.js";
 import fs from 'node:fs';
+import os from 'node:os';
 import path from 'node:path';
 import { spawn, ChildProcess } from 'node:child_process';
 import type { InstanceMeta, LaunchProgress, GameLog } from '../../../preload/types';
@@ -76,6 +77,15 @@ export class LaunchService {
     }
   }
 
+  private appendGameLog(text: string): void {
+    try {
+      const logFile = path.join(os.tmpdir(), 'hiroki-game.log');
+      fs.appendFileSync(logFile, text);
+    } catch (e) {
+      console.warn('[LaunchService] Failed to write game log:', e);
+    }
+  }
+
   /**
    * Ensures authlib-injector is available locally for Ely.by skin and auth support
    */
@@ -84,21 +94,39 @@ export class LaunchService {
     const dest = path.join(sharedDir, 'tools', 'authlib-injector.jar');
 
     if (!fs.existsSync(dest)) {
+      const toolsDir = path.dirname(dest);
+      if (!fs.existsSync(toolsDir)) {
+        fs.mkdirSync(toolsDir, { recursive: true });
+      }
+
       this.emitLog('info', '[Launcher] Загрузка authlib-injector для поддержки скинов Ely.by...');
       try {
-        const response = await fetch('https://api.github.com/repos/yushijinhun/authlib-injector/releases/latest');
-        const data = await response.json();
-        const asset = data.assets?.find((a: any) => a.name.endsWith('.jar'));
-        if (!asset) {
-          throw new Error('Не найден .jar файл в последнем релизе authlib-injector на GitHub');
+        const response = await fetch('https://api.github.com/repos/yushijinhun/authlib-injector/releases/latest', {
+          headers: { 'User-Agent': 'HirokiLauncher/2.0.0' },
+        });
+        if (response.ok) {
+          const data = (await response.json()) as any;
+          const asset = data.assets?.find((a: any) => a.name.endsWith('.jar'));
+          if (asset?.browser_download_url) {
+            await DownloaderService.getInstance().downloadFile({
+              url: asset.browser_download_url,
+              destPath: dest,
+            });
+            return dest;
+          }
         }
-        
+      } catch (err) {
+        console.warn('[LaunchService] Failed to fetch authlib-injector from GitHub, trying direct fallback:', err);
+      }
+
+      // Direct fallback URL
+      try {
         await DownloaderService.getInstance().downloadFile({
-          url: asset.browser_download_url,
+          url: 'https://authlib-injector.yushijinhun.com/artifact/latest/authlib-injector.jar',
           destPath: dest,
         });
-      } catch (err) {
-        throw new Error(`Ошибка загрузки authlib-injector: ${err instanceof Error ? err.message : String(err)}`);
+      } catch (directErr) {
+        throw new Error(`Ошибка загрузки authlib-injector: ${directErr instanceof Error ? directErr.message : String(directErr)}`);
       }
     }
 
@@ -110,7 +138,8 @@ export class LaunchService {
       if (!fs.existsSync(nativesDir)) {
         fs.mkdirSync(nativesDir, { recursive: true });
       }
-      const existing = fs.readdirSync(nativesDir).filter(f => f.endsWith('.so'));
+      const nativeExt = process.platform === 'win32' ? '.dll' : process.platform === 'darwin' ? '.dylib' : '.so';
+      const existing = fs.readdirSync(nativesDir).filter(f => f.toLowerCase().endsWith(nativeExt));
       if (existing.length > 0) {
         return;
       }
@@ -149,8 +178,6 @@ export class LaunchService {
         };
         scanDir(librariesDir);
       }
-
-      const nativeExt = process.platform === 'win32' ? '.dll' : process.platform === 'darwin' ? '.dylib' : '.so';
 
       for (const jarPath of nativeJars) {
         if (fs.existsSync(jarPath)) {
@@ -195,7 +222,7 @@ export class LaunchService {
     const sharedDir = settings.gameDirectory;
 
     this.emitLog('info', `[Launcher] Подготовка к запуску сборки "${instance.name}" (${instance.gameVersion})...`);
-    this.emitStateChange(instanceId, true);
+    this.emitProgress({ step: 'Подготовка к запуску сборки...', percentage: 0 });
 
     try {
       // 1. Prepare files
@@ -367,7 +394,7 @@ export class LaunchService {
       this.emitLog('debug', `[Launcher] Аргументы: ${fullArgs.join(' ')}`);
 
       // 4. Spawn game process
-      fs.appendFileSync('/tmp/hiroki-game.log', '[SPAWN ARGS]\n' + fullArgs.join('\n') + '\n');
+      this.appendGameLog('[SPAWN ARGS]\n' + fullArgs.join('\n') + '\n');
       const child = spawn(javaExecutable, fullArgs, {
         cwd: instanceDir,
         env: {
@@ -378,25 +405,27 @@ export class LaunchService {
       });
 
       this.runningProcesses.set(instanceId, child);
+      this.emitLog('info', `[Launcher] Процесс запущен (PID: ${child.pid})`);
+      this.emitStateChange(instanceId, true);
 
       // Update last played timestamp
       InstancesService.getInstance().update(instanceId, { lastPlayedAt: Date.now() });
 
       child.stdout.on('data', (data: Buffer) => {
         const text = data.toString('utf-8');
-        fs.appendFileSync('/tmp/hiroki-game.log', `[STDOUT] ${text}`);
+        this.appendGameLog(`[STDOUT] ${text}`);
         this.emitLog('info', text.trimEnd());
       });
 
       child.stderr.on('data', (data: Buffer) => {
         const text = data.toString('utf-8');
-        fs.appendFileSync('/tmp/hiroki-game.log', `[STDERR] ${text}`);
+        this.appendGameLog(`[STDERR] ${text}`);
         this.emitLog('warn', text.trimEnd());
       });
 
       child.on('error', (err) => {
         if (activeLocalProxy) activeLocalProxy.stop();
-        fs.appendFileSync('/tmp/hiroki-game.log', `[Error] ${err.message}\n`);
+        this.appendGameLog(`[Error] ${err.message}\n`);
         console.error(`[Launcher] Process error for ${instance.name}:`, err);
         this.emitLog('error', `[Launcher Error] ${err.message}`);
         this.runningProcesses.delete(instanceId);
@@ -405,7 +434,7 @@ export class LaunchService {
 
       child.on('close', (code) => {
         if (activeLocalProxy) activeLocalProxy.stop();
-        fs.appendFileSync('/tmp/hiroki-game.log', `[Close] Exit code: ${code}\n`);
+        this.appendGameLog(`[Close] Exit code: ${code}\n`);
         this.emitLog('info', `[Launcher] Игра завершена с кодом: ${code}`);
         this.runningProcesses.delete(instanceId);
         this.emitStateChange(instanceId, false, code ?? 0);
@@ -413,7 +442,8 @@ export class LaunchService {
     } catch (error) {
       console.error(`[Launcher] Launch failed for ${instanceId}:`, error);
       this.emitLog('error', `[Launch Failed] ${error instanceof Error ? error.stack : String(error)}`);
-      fs.appendFileSync('/tmp/hiroki-game.log', '\nLAUNCH CRASH:\n' + (error instanceof Error ? error.stack : String(error)) + '\n');
+      this.appendGameLog('\nLAUNCH CRASH:\n' + (error instanceof Error ? error.stack : String(error)) + '\n');
+      this.emitProgress({ step: 'Ошибка запуска', percentage: 0 });
       this.emitStateChange(instanceId, false, -1);
       throw error;
     }
