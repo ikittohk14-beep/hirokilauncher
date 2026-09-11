@@ -2,6 +2,7 @@
   <img src="build/rofi-icon.svg" width="128" height="128" alt="HirokiLauncher Logo">
   <h1>HirokiLauncher 2.0</h1>
   <p><b>Сверхбыстрый, адаптивный и эстетичный лаунчер Minecraft нового поколения.</b></p>
+  <p><b>A modern, blazingly fast, and highly customizable next-generation Minecraft launcher.</b></p>
   <p>Оптимизирован для <b>Linux (CachyOS / Wayland / driftwm)</b> и <b>Windows</b>.</p>
 
   <div>
@@ -15,13 +16,17 @@
 
 ---
 
-## 🇷🇺 Описание (Russian)
-
-**HirokiLauncher 2.0** — это полнофункциональный лаунчер для Minecraft, спроектированный с нуля на стеке **Electron + Vite + React + TypeScript + Tailwind CSS**. 
-
-Главный акцент проекта — максимальная скорость работы, абсолютная чёткость интерфейса без размытия в Wayland-композиторах (включая динамические тайлинг-менеджеры, такие как **driftwm** и **Hyprland**), интерактивный Bento-дашборд и интеллектуальное управление зависимостями игры.
+> 🤖 **ВЕСЬ КОД НАПИСАН ИИ / ALL CODE WRITTEN BY AI**  
+> Вся кодовая база, системная логика и архитектура HirokiLauncher целиком написаны, оптимизированы и отлажены автономным искусственным интеллектом — агентом **Antigravity** (Google DeepMind) в режиме парного программирования.  
+> *The entire codebase, system logic, and architecture of HirokiLauncher were completely written, optimized, and debugged by artificial intelligence — the autonomous coding agent **Antigravity** (Google DeepMind).*
 
 ---
+
+## 🇷🇺 Описание (Russian)
+
+**HirokiLauncher 2.0** — это современный лаунчер для Minecraft, спроектированный с нуля на стеке **Electron + Vite + React + TypeScript + Tailwind CSS**. 
+
+Главный акцент проекта — максимальная скорость работы, абсолютная чёткость интерфейса без размытия в Wayland-композиторах (включая динамические тайлинг-менеджеры, такие как **driftwm** и **Hyprland**), интерактивный Bento-дашборд и интеллектуальное управление зависимостями игры.
 
 ### ✨ Ключевые возможности
 
@@ -65,30 +70,48 @@
 
 ---
 
-## ⚙️ Установка и запуск
+## 🇬🇧 English Description
 
-### Готовые сборки (Releases)
+**HirokiLauncher 2.0** is a modern, high-performance Minecraft launcher built from the ground up with **Electron + Vite + React + TypeScript + Tailwind CSS**.
+
+Engineered specifically for optimal rendering on modern Wayland window managers (such as **driftwm**, **Hyprland**, and **Sway**) and **Windows**, featuring a dynamic Bento Grid dashboard and intelligent Java runtime resolution.
+
+### ✨ Key Features
+
+- **Dynamic Bento Grid 2.0**: Freely draggable and resizable widgets powered by `react-grid-layout` with persistent auto-saved layouts.
+- **Ergonomic Playtime Heatmap**: Monthly GitHub-style calendar matrix with smart compression for compact tiling spaces.
+- **Linux MPRIS Music Widget**: Real-time integration with `playerctl` and D-Bus, showing album art, titles, controls, and animated audio bars.
+- **Intelligent Java Selector**: Automated multi-JVM discovery and Mojang version requirement mapping (Java 8 / 16 / 17 / 21) with clear installation commands.
+- **Modrinth Catalog & 1-Click Updates**: In-app mod browsing, automatic dependency resolution, and one-click updates.
+- **Cross-Platform Engine**: Native classpath handling with `path.delimiter` and automatic extraction of platform-specific natives (`.dll` / `.so` / `.dylib`).
+- **Ely.by & Offline Support**: Seamless skin authorization via `authlib-injector` and multi-account switcher.
+
+---
+
+## ⚙️ Установка и запуск / Installation
+
+### Готовые сборки / Pre-built Binaries
 Скачайте готовый архив или инсталлятор со страницы [Releases](https://github.com/ikittohk14-beep/hirokilauncher/releases):
-- **Windows**: `HirokiLauncher-Setup-2.0.0.exe` или `.zip`
-- **Linux**: `hiroki-launcher-2.0.0.tar.gz` или `.zip`
+- **Windows**: `HirokiLauncher Setup 2.0.0.exe` (NSIS Installer) или `HirokiLauncher-2.0.0-win.zip` (Portable)
+- **Linux**: `hiroki-launcher-2.0.0.tar.gz` или `hiroki-launcher-2.0.0.zip`
 
-### Сборка из исходников
+### Сборка из исходников / Building from Source
 
 Требования: `Node.js >= 20`, `pnpm`.
 
 ```bash
-# Клонирование репозитория
+# Клонирование репозитория / Clone repo
 git clone https://github.com/ikittohk14-beep/hirokilauncher.git
 cd hirokilauncher
 
-# Установка зависимостей
+# Установка зависимостей / Install dependencies
 pnpm install
 
-# Запуск в режиме разработки (Wayland Native)
+# Запуск в режиме разработки (Wayland Native) / Run dev
 pnpm run start
 ```
 
-### Сборка пакетов
+### Сборка пакетов / Package Distribution
 ```bash
 # Сборка под Linux (tar.gz, zip)
 pnpm run dist:linux
@@ -102,15 +125,12 @@ pnpm run dist:all
 
 ---
 
-## 🛠️ Стек технологий
+## 🛠️ Стек технологий / Tech Stack
 
-- **Фреймворк**: [Electron](https://www.electronjs.org/) + [Vite](https://vitejs.dev/)
-- **Язык**: [TypeScript](https://www.typescriptlang.org/)
-- **Интерфейс**: [React 18](https://react.dev/), [Tailwind CSS](https://tailwindcss.com/)
-- **Сетка Bento**: [react-grid-layout](https://github.com/react-grid-layout/react-grid-layout)
-- **Иконки**: [Lucide React](https://lucide.dev/)
-- **Сборщик дистрибутивов**: [electron-builder](https://www.electron.build/)
+- **Framework**: [Electron](https://www.electronjs.org/) + [Vite](https://vitejs.dev/)
+- **Language**: [TypeScript](https://www.typescriptlang.org/)
+- **Frontend**: [React 18](https://react.dev/), [Tailwind CSS](https://tailwindcss.com/)
+- **Grid Layout**: [react-grid-layout](https://github.com/react-grid-layout/react-grid-layout)
+- **Icons**: [Lucide React](https://lucide.dev/)
+- **Packaging**: [electron-builder](https://www.electron.build/)
 
----
-
-> 🤖 **Интересный факт:** Кодовая база лаунчера создана и сопровождается в тесном сотрудничестве с автономным ИИ-агентом **Antigravity** (Google DeepMind).
