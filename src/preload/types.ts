@@ -13,6 +13,9 @@ export interface AppSettings {
   customJvmArgs: string;
   theme: 'dark' | 'midnight' | 'cyber';
   autoCloseOnLaunch: boolean;
+  tileShape?: 'classic' | 'compact';
+  layout?: any[];
+  showSnapshots?: boolean;
 }
 
 export interface JavaInstallation {
@@ -128,7 +131,8 @@ export interface GameLog {
 
 export interface ElectronAPI {
   window: WindowControlsAPI;
-  settings: {
+  onMusicUpdate: (callback: (data: { status: string, artist: string, title: string, artUrl: string }) => void) => void;
+    settings: {
     get: () => Promise<AppSettings>;
     update: (settings: Partial<AppSettings>) => Promise<AppSettings>;
     detectJava: () => Promise<JavaInstallation[]>;
@@ -144,12 +148,15 @@ export interface ElectronAPI {
     loginBrowserElyBy: () => Promise<Account>;
     remove: (id: string) => Promise<boolean>;
   };
+  dialog: {
+    showOpenDialog: (options: any) => Promise<any>;
+  };
   instances: {
     getAll: () => Promise<InstanceMeta[]>;
     getById: (id: string) => Promise<InstanceMeta | null>;
     create: (meta: Omit<InstanceMeta, 'id' | 'createdAt'>) => Promise<InstanceMeta>;
     delete: (id: string) => Promise<boolean>;
-    getInstalledMods: (instanceId: string) => Promise<InstalledModFile[]>;
+    getInstalledMods: (instanceId: string, deepScan?: boolean) => Promise<InstalledModFile[]>;
     toggleMod: (instanceId: string, filename: string, enabled: boolean) => Promise<boolean>;
     deleteMod: (instanceId: string, filename: string) => Promise<boolean>;
     addLocalMod: (instanceId: string, filePath: string, type?: string) => Promise<boolean>;
@@ -164,9 +171,13 @@ export interface ElectronAPI {
     getLoaderVersions: (gameVersion: string, loader: ModLoaderType) => Promise<ModLoaderVersionItem[]>;
   };
   content: {
-    search: (query: string, category: ContentCategory, gameVersion?: string, loader?: ModLoaderType, source?: 'modrinth' | 'curseforge', page?: number) => Promise<{ items: ContentItem[]; totalHits: number }>;
+    search: (query: string, category: ContentCategory, gameVersion?: string, loader?: ModLoaderType, source?: 'modrinth' | 'curseforge', page?: number, sortBy?: string, tags?: string[]) => Promise<{ items: ContentItem[]; totalHits: number }>;
     getProject: (id: string, source: string) => Promise<any>;
     getVersions: (projectId: string, source: 'modrinth' | 'curseforge', gameVersion?: string, loader?: ModLoaderType) => Promise<ContentVersion[]>;
+    
+  checkModUpdates: (instanceId: string) => Promise<{ filename: string; update: ContentVersion }[]>;
+  updateMod: (instanceId: string, oldFilename: string, newVersion: ContentVersion) => Promise<boolean>;
+
     installContent: (instanceId: string, projectId: string, source: 'modrinth' | 'curseforge', version: ContentVersion, category: ContentCategory) => Promise<boolean>;
     installModpack: (version: ContentVersion, name: string) => Promise<InstanceMeta>;
   };

@@ -7,6 +7,39 @@ interface StatsCardProps {
 }
 
 const ModsCard: React.FC<StatsCardProps> = ({ instanceId, onClick }) => {
+  
+  const [checkingUpdates, setCheckingUpdates] = useState(false);
+  const [updates, setUpdates] = useState<any[]>([]);
+  const [updating, setUpdating] = useState(false);
+
+  const handleCheckUpdates = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!instanceId || checkingUpdates) return;
+    setCheckingUpdates(true);
+    try {
+      const result = await window.electronAPI.content.checkModUpdates(instanceId);
+      setUpdates(result || []);
+    } catch (err) {
+      console.error('Failed to check updates', err);
+    }
+    setCheckingUpdates(false);
+  };
+
+  const handleUpdateAll = async (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (!instanceId || updates.length === 0 || updating) return;
+    setUpdating(true);
+    try {
+      for (const update of updates) {
+        await window.electronAPI.content.updateMod(instanceId, update.filename, update.update);
+      }
+      setUpdates([]);
+    } catch (err) {
+      console.error('Failed to update mods', err);
+    }
+    setUpdating(false);
+  };
+
   const [stats, setStats] = useState({
     mods: 0,
     shaders: 0,
@@ -21,36 +54,39 @@ const ModsCard: React.FC<StatsCardProps> = ({ instanceId, onClick }) => {
     let active = true;
     
     if (!instanceId) {
-      setStats({ mods: 0, shaders: 0, resourcepacks: 0, worlds: 0 })
+      setStats({ mods: 0, shaders: 0, resourcepacks: 0, worlds: 0 });
       setServer(null);
       setPing(null);
-      return
+      return;
     }
 
     const loadStats = async () => {
       try {
         let m = 0, s = 0, r = 0, w = 0;
-        const items = await window.electronAPI.instances.getInstalledMods(instanceId)
+        const items = await window.electronAPI.instances.getInstalledMods(instanceId);
         m = items.filter(x => x.type === 'mod').length;
         s = items.filter(x => x.type === 'shader').length;
         r = items.filter(x => x.type === 'resourcepack').length;
         w = items.filter(x => x.type === 'map').length;
 
-        if (active) setStats({ mods: m, shaders: s, resourcepacks: r, worlds: w })
+        if (active) setStats({ mods: m, shaders: s, resourcepacks: r, worlds: w });
       } catch (err) {
-        console.error('[ModsCard] failed to load stats', err)
+        console.error('[ModsCard] failed to load stats', err);
       }
-    }
+    };
     
+    let activeServerIp: string | null = null;
     const fetchServer = async () => {
       try {
         const servers = await window.electronAPI.instances.getServers(instanceId);
         if (servers && servers.length > 0 && active) {
           const s = servers[0]; // pick first server
+          activeServerIp = s.ip;
           setServer(s);
           const p = await window.electronAPI.instances.pingServer(s.ip);
           if (active) setPing(p);
         } else if (active) {
+          activeServerIp = null;
           setServer(null);
           setPing(null);
         }
@@ -64,18 +100,18 @@ const ModsCard: React.FC<StatsCardProps> = ({ instanceId, onClick }) => {
     
     // Refresh ping every 30s
     const timer = setInterval(() => {
-      if (server) {
-        window.electronAPI.instances.pingServer(server.ip).then((p: any) => {
+      if (activeServerIp && active) {
+        window.electronAPI.instances.pingServer(activeServerIp).then((p: any) => {
           if (active) setPing(p);
-        });
+        }).catch(() => {});
       }
     }, 30000);
     
     return () => {
       active = false;
       clearInterval(timer);
-    }
-  }, [instanceId, server?.ip])
+    };
+  }, [instanceId]);
 
   return (
     <div
@@ -90,9 +126,50 @@ const ModsCard: React.FC<StatsCardProps> = ({ instanceId, onClick }) => {
       }}
       onClick={onClick}
     >
-      <div className="card-label">
+      
+      <div className="card-label" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <span>КОНТЕНТ СБОРКИ</span>
+        {instanceId && (
+          <div style={{ display: 'flex', gap: '8px' }}>
+            {updates.length > 0 ? (
+              <button
+                onClick={handleUpdateAll}
+                disabled={updating}
+                style={{
+                  fontSize: 10,
+                  fontWeight: 'bold',
+                  backgroundColor: 'var(--blue)',
+                  color: 'white',
+                  border: 'none',
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                  cursor: updating ? 'wait' : 'pointer'
+                }}
+              >
+                {updating ? 'Обновление...' : `Обновить (${updates.length})`}
+              </button>
+            ) : (
+              <button
+                onClick={handleCheckUpdates}
+                disabled={checkingUpdates}
+                style={{
+                  fontSize: 10,
+                  fontWeight: 'bold',
+                  backgroundColor: 'transparent',
+                  color: 'var(--text-dim)',
+                  border: '1px solid var(--border)',
+                  padding: '2px 6px',
+                  borderRadius: '4px',
+                  cursor: checkingUpdates ? 'wait' : 'pointer'
+                }}
+              >
+                {checkingUpdates ? 'Проверка...' : 'Проверить обновления'}
+              </button>
+            )}
+          </div>
+        )}
       </div>
+
 
       <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px 12px', marginTop: 'auto', marginBottom: 'auto' }}>
         <div style={{ display: 'flex', flexDirection: 'column' }}>

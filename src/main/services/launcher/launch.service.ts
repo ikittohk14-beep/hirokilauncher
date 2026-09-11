@@ -8,6 +8,8 @@ import { AccountsService } from '../accounts/accounts.service';
 import { InstancesService } from '../storage/instances.service';
 import { GameInstallerService } from '../minecraft/game-installer.service';
 import { DownloaderService } from '../downloader/downloader.service';
+import { JavaService } from '../system/java.service';
+import AdmZip from 'adm-zip';
 
 export class LaunchService {
   private static instance: LaunchService;
@@ -103,6 +105,76 @@ export class LaunchService {
     return dest;
   }
 
+  private ensureNatives(sharedDir: string, gameVersion: string, versionJson: any, nativesDir: string): void {
+    try {
+      if (!fs.existsSync(nativesDir)) {
+        fs.mkdirSync(nativesDir, { recursive: true });
+      }
+      const existing = fs.readdirSync(nativesDir).filter(f => f.endsWith('.so'));
+      if (existing.length > 0) {
+        return;
+      }
+
+      const librariesDir = path.join(sharedDir, 'libraries');
+      const nativeJars: string[] = [];
+
+      const platform = process.platform === 'win32' ? 'windows' : process.platform === 'darwin' ? 'osx' : 'linux';
+      const arch = process.arch === 'x64' ? '64' : '32';
+
+      if (versionJson?.libraries) {
+        for (const lib of versionJson.libraries) {
+          if (lib.natives && lib.downloads?.classifiers) {
+            let nativeKey = lib.natives[platform] || `natives-${platform}`;
+            nativeKey = nativeKey.replace('${arch}', arch);
+            const classifier = lib.downloads.classifiers[nativeKey];
+            if (classifier?.path) {
+              nativeJars.push(path.join(librariesDir, classifier.path));
+            }
+          }
+        }
+      }
+
+      // Fallback: scan librariesDir for any natives-<platform> jar
+      if (nativeJars.length === 0 && fs.existsSync(librariesDir)) {
+        const scanDir = (dir: string) => {
+          const entries = fs.readdirSync(dir, { withFileTypes: true });
+          for (const e of entries) {
+            const full = path.join(dir, e.name);
+            if (e.isDirectory()) {
+              scanDir(full);
+            } else if (e.name.includes('natives') && e.name.includes(platform) && e.name.endsWith('.jar')) {
+              nativeJars.push(full);
+            }
+          }
+        };
+        scanDir(librariesDir);
+      }
+
+      const nativeExt = process.platform === 'win32' ? '.dll' : process.platform === 'darwin' ? '.dylib' : '.so';
+
+      for (const jarPath of nativeJars) {
+        if (fs.existsSync(jarPath)) {
+          try {
+            const zip = new AdmZip(jarPath);
+            for (const entry of zip.getEntries()) {
+              if (!entry.isDirectory && !entry.entryName.startsWith('META-INF') && entry.entryName.toLowerCase().endsWith(nativeExt)) {
+                const filename = path.basename(entry.entryName);
+                const destPath = path.join(nativesDir, filename);
+                if (!fs.existsSync(destPath)) {
+                  fs.writeFileSync(destPath, entry.getData());
+                }
+              }
+            }
+          } catch (err) {
+            console.error('[LaunchService] Error extracting natives from:', jarPath, err);
+          }
+        }
+      }
+    } catch (err) {
+      console.error('[LaunchService] Error ensuring natives:', err);
+    }
+  }
+
   public async launch(instanceId: string): Promise<void> {
     if (this.runningProcesses.has(instanceId)) {
       throw new Error('Данный инстанс уже запущен');
@@ -137,11 +209,25 @@ export class LaunchService {
       const maxRam = instance.customMemoryMb || settings.maxMemoryMb || 4096;
       const librariesDir = path.join(sharedDir, 'libraries');
       const nativesDir = path.join(sharedDir, 'versions', instance.gameVersion, 'natives');
-      const classpathStr = classpath.join(':');
+      const classpathStr = classpath.join(path.delimiter);
 
       if (!fs.existsSync(nativesDir)) {
         fs.mkdirSync(nativesDir, { recursive: true });
       }
+
+      // Load version JSON for Java requirements and library classifiers
+      const versionJsonPath = path.join(sharedDir, 'versions', instance.gameVersion, `${instance.gameVersion}.json`);
+      let versionJson: any = null;
+      if (fs.existsSync(versionJsonPath)) {
+        try {
+          versionJson = JSON.parse(fs.readFileSync(versionJsonPath, 'utf8'));
+        } catch (err) {
+          console.error('[LaunchService] Failed to parse version.json:', err);
+        }
+      }
+
+      // Unpack native libraries for LWJGL/JInput
+      this.ensureNatives(sharedDir, instance.gameVersion, versionJson, nativesDir);
 
       // Token substitution logic
       const replaceTokens = (arg: string | any) => {
@@ -162,10 +248,10 @@ export class LaunchService {
           .replace(/\$\{user_properties\}/g, '{}')
           .replace(/\$\{auth_session\}/g, account.accessToken || '0')
           .replace(/\$\{library_directory\}/g, librariesDir)
-          .replace(/\$\{classpath_separator\}/g, ':')
+          .replace(/\$\{classpath_separator\}/g, path.delimiter)
           .replace(/\$\{natives_directory\}/g, nativesDir)
           .replace(/\$\{launcher_name\}/g, 'HirokiLauncher')
-          .replace(/\$\{launcher_version\}/g, '1.0');
+          .replace(/\$\{launcher_version\}/g, '2.0.0');
       };
 
       // 2. Build JVM Args
@@ -259,11 +345,25 @@ export class LaunchService {
         gameArgs = [...standardGameArgs];
       }
 
+      // Fix for driftwm/Wayland: AWT early display in NeoForge freezes in non-reparenting WMs
+      jvmArgs.push('-Dfml.earlyprogresswindow=false');
+
+      // Auto-detect and resolve matching Java runtime for Minecraft version
+      const resolvedJava = await JavaService.getInstance().resolveJavaExecutable(
+        instance.customJavaPath,
+        instance.gameVersion,
+        versionJson,
+        settings.javaPath
+      );
+
+      if (resolvedJava.warning) {
+        this.emitLog('warn', `[Launcher] ${resolvedJava.warning}`);
+      }
+
+      const javaExecutable = resolvedJava.path;
       const fullArgs = [...jvmArgs, ...gameArgs];
 
-      const javaExecutable = instance.customJavaPath || settings.javaPath || '/usr/bin/java';
-
-      this.emitLog('info', `[Launcher] Запуск JVM: ${javaExecutable}`);
+      this.emitLog('info', `[Launcher] Запуск JVM (Java ${resolvedJava.majorVersion || 'Auto'}): ${javaExecutable}`);
       this.emitLog('debug', `[Launcher] Аргументы: ${fullArgs.join(' ')}`);
 
       // 4. Spawn game process
@@ -272,6 +372,8 @@ export class LaunchService {
         cwd: instanceDir,
         env: {
           ...process.env,
+          _JAVA_AWT_WM_NONREPARENTING: '1',
+          WLR_NO_HARDWARE_CURSORS: '1'
         },
       });
 

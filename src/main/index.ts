@@ -1,8 +1,11 @@
+import os from 'node:os';
+import pathNode from 'node:path';
 import { app, BrowserWindow, shell } from 'electron';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import dns from 'node:dns';
 import { registerIpcHandlers } from './ipc/register';
+import { MusicService } from './services/music/music.service';
 import { net } from 'electron';
 
 
@@ -63,9 +66,9 @@ function createWindow(): BrowserWindow {
   return win;
 }
 
-if (process.platform === 'linux') {
-  app.disableHardwareAcceleration();
-}
+// Native Wayland hardware acceleration enabled for smooth rendering under driftwm
+
+app.setPath('userData', pathNode.join(os.homedir(), '.config', 'hiroki-launcher'));
 app.whenReady().then(() => {
   mainWindow = createWindow();
 
@@ -76,6 +79,11 @@ app.whenReady().then(() => {
   });
 
   registerIpcHandlers(mainWindow);
+  MusicService.getInstance().setWindow(mainWindow);
+  mainWindow.webContents.on('did-finish-load', () => {
+    MusicService.getInstance().startListening();
+  });
+        
 });
 
 app.on('window-all-closed', () => {

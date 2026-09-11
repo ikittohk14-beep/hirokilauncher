@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { applyTheme, saveLocalData, loadLocalData, StoreKeys } from '../utils/store';
-import { Settings as SettingsIcon, Palette, Folder, Cpu, Terminal, Image as ImageIcon } from 'lucide-react';
+import { Edit2, Settings as SettingsIcon, Palette, Folder, Cpu, Terminal, Image as ImageIcon, RotateCcw, Sparkles } from 'lucide-react';
 import type { AppSettings, JavaInstallation } from '../../../preload/types';
 
-export const Settings: React.FC = () => {
+interface SettingsProps {
+  isEditMode: boolean;
+  setIsEditMode: (v: boolean) => void;
+}
+
+export const Settings: React.FC<SettingsProps> = ({ isEditMode, setIsEditMode }) => {
   const [settings, setSettings] = useState<AppSettings | null>(null);
   const [jvms, setJvms] = useState<JavaInstallation[]>([]);
   const [scanning, setScanning] = useState(false);
@@ -133,6 +138,65 @@ export const Settings: React.FC = () => {
 
         
 
+        
+        {/* Edit Mode Toggle */}
+        <div className="p-5 rounded-xl bg-[var(--card)] border border-[var(--border)] flex flex-col gap-4">
+          <div className="flex items-center gap-2">
+            <Edit2 size={16} className="text-[var(--blue)]" />
+            <h3 className="text-sm font-bold text-white">Режим редактирования сетки</h3>
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="text-xs text-slate-400">
+              Позволяет изменять размер и перемещать виджеты на главном экране.
+            </div>
+            <div 
+              className={`toggle-mini ${isEditMode ? 'on' : ''}`} 
+              onClick={() => setIsEditMode(!isEditMode)}
+            />
+          </div>
+
+          <div className="flex items-center justify-between pt-3 border-t border-[var(--border)]">
+            <div className="text-xs text-slate-400">
+              Сбросить позиции виджетов к заводскому расположению
+            </div>
+            <button
+              onClick={async () => {
+                const defaultLayout = [
+                  { i: 'col1', x: 0, y: 0, w: 6, h: 3, minW: 4, minH: 2 },
+                  { i: 'music', x: 0, y: 3, w: 6, h: 1, minW: 4, minH: 1 },
+                  { i: 'shelf', x: 6, y: 0, w: 18, h: 2, minW: 8, minH: 2 },
+                  { i: 'art', x: 6, y: 2, w: 5, h: 2, minW: 4, minH: 2 },
+                  { i: 'mods', x: 11, y: 2, w: 6, h: 2, minW: 5, minH: 2 },
+                  { i: 'launch', x: 17, y: 2, w: 7, h: 2, minW: 6, minH: 2 }
+                ];
+                saveLocalData(StoreKeys.LAYOUT + '_v8', defaultLayout);
+                await updateSetting('layout', defaultLayout);
+              }}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--card-inner)] border border-[var(--border)] hover:border-slate-500 text-xs font-semibold text-slate-300 hover:text-white transition-all"
+            >
+              <RotateCcw size={13} />
+              <span>Сбросить сетку</span>
+            </button>
+          </div>
+        </div>
+
+        {/* Snapshots Toggle */}
+        <div className="p-5 rounded-xl bg-[var(--card)] border border-[var(--border)] flex flex-col gap-4">
+          <div className="flex items-center gap-2">
+            <Sparkles size={16} className="text-[var(--blue)]" />
+            <h3 className="text-sm font-bold text-white">Отображение снапшотов (Snapshots)</h3>
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="text-xs text-slate-400">
+              Показывать тестовые сборки, pre-release и снапшоты при выборе и загрузке версий Minecraft.
+            </div>
+            <div 
+              className={`toggle-mini ${settings.showSnapshots !== false ? 'on' : ''}`} 
+              onClick={() => updateSetting('showSnapshots', settings.showSnapshots === false ? true : false)}
+            />
+          </div>
+        </div>
+
         {/* Art Image */}
         <div className="p-5 rounded-xl bg-[var(--card)] border border-[var(--border)] flex flex-col gap-4">
           <div className="flex items-center gap-2">
@@ -149,17 +213,25 @@ export const Settings: React.FC = () => {
                 onChange={(e) => {
                   const file = e.target.files?.[0];
                   if (file) {
-                    const reader = new FileReader();
-                    reader.onload = (event) => {
-                      try {
-                        const base64 = event.target?.result as string;
-                        saveLocalData('hiroki_art_url', base64);
+                    try {
+                      // In Electron, File objects have a .path property
+                      const filePath = (file as any).path;
+                      if (filePath) {
+                        saveLocalData('hiroki_art_url', 'file://' + filePath);
                         window.dispatchEvent(new Event('art-updated'));
-                      } catch (e) {
-                        alert('Картинка слишком большая для сохранения в браузере (Лимит 5МБ).');
+                      } else {
+                        // Fallback for some reason?
+                        const reader = new FileReader();
+                        reader.onload = (event) => {
+                          const base64 = event.target?.result as string;
+                          saveLocalData('hiroki_art_url', base64);
+                          window.dispatchEvent(new Event('art-updated'));
+                        };
+                        reader.readAsDataURL(file);
                       }
-                    };
-                    reader.readAsDataURL(file);
+                    } catch (e) {
+                      console.error(e);
+                    }
                   }
                 }}
               />
@@ -168,6 +240,23 @@ export const Settings: React.FC = () => {
               {loadLocalData('hiroki_art_url', null) ? 'Пользовательская картинка установлена' : 'Стандартная картинка'}
             </span>
           </div>
+        </div>
+
+        
+        {/* Tile Shape */}
+        <div className="p-5 rounded-xl bg-[var(--card)] border border-[var(--border)] flex flex-col gap-4">
+          <div className="flex items-center gap-2">
+            <ImageIcon size={16} className="text-[var(--blue)]" />
+            <h3 className="text-sm font-bold text-white">Форма плиток сборок</h3>
+          </div>
+          <select
+            value={settings.tileShape || 'compact'}
+            onChange={(e) => updateSetting('tileShape', e.target.value as 'classic' | 'compact')}
+            className="w-full bg-[var(--bg)] border border-[var(--border)] rounded-lg px-4 py-2 text-sm text-white font-medium focus:border-[var(--blue)] outline-none transition-colors"
+          >
+            <option value="classic">Классическая (Прямоугольники)</option>
+            <option value="compact">Компактная (Кубики)</option>
+          </select>
         </div>
 
         {/* Theme */}

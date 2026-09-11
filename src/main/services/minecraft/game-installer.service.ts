@@ -81,14 +81,22 @@ export class GameInstallerService {
     return settings.gameDirectory;
   }
 
+  private getMojangPlatform(): 'windows' | 'osx' | 'linux' {
+    if (process.platform === 'win32') return 'windows';
+    if (process.platform === 'darwin') return 'osx';
+    return 'linux';
+  }
+
   private isRuleAllowed(rules?: VersionRule[]): boolean {
     if (!rules || rules.length === 0) return true;
 
     let allowed = false;
+    const currentPlatform = this.getMojangPlatform();
+
     for (const rule of rules) {
       let matches = true;
       if (rule.os) {
-        if (rule.os.name && rule.os.name !== 'linux') {
+        if (rule.os.name && rule.os.name !== currentPlatform) {
           matches = false;
         }
       }
@@ -188,9 +196,12 @@ export class GameInstallerService {
         });
       }
 
-      // Check Linux natives
+      // Check platform natives
       if (lib.natives && lib.downloads?.classifiers) {
-        const nativeKey = lib.natives['linux'] || 'natives-linux';
+        const platform = this.getMojangPlatform();
+        let nativeKey = lib.natives[platform] || `natives-${platform}`;
+        const arch = process.arch === 'x64' ? '64' : '32';
+        nativeKey = nativeKey.replace('${arch}', arch);
         const classifier = lib.downloads.classifiers[nativeKey];
         if (classifier) {
           const dest = path.join(librariesDir, classifier.path);

@@ -41,13 +41,18 @@ export const Instances: React.FC<InstancesProps> = ({
     const loadMcVersions = async () => {
       setLoadingVersions(true);
       try {
-        const versions = await window.electronAPI.versions.getMinecraftVersions();
+        const [versions, settings] = await Promise.all([
+          window.electronAPI.versions.getMinecraftVersions(),
+          window.electronAPI.settings.get()
+        ]);
         if (mounted) {
-          // Filter to releases primarily
-          const releases = versions.filter((v) => v.type === 'release');
-          setMinecraftVersions(releases.length > 0 ? releases : versions);
-          if (releases.length > 0 && !selectedGameVersion) {
-            setSelectedGameVersion(releases[0]!.id);
+          const allowSnapshots = settings?.showSnapshots !== false;
+          const filtered = allowSnapshots 
+            ? versions.filter(v => v.type === 'release' || v.type === 'snapshot')
+            : versions.filter((v) => v.type === 'release');
+          setMinecraftVersions(filtered.length > 0 ? filtered : versions);
+          if (filtered.length > 0 && !selectedGameVersion) {
+            setSelectedGameVersion(filtered[0]!.id);
           }
         }
       } catch (err) {

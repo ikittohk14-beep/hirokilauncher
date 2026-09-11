@@ -15,6 +15,12 @@ import { LaunchService } from '../services/launcher/launch.service';
 import type { AppSettings, ContentCategory, ContentVersion, InstanceMeta, ModLoaderType } from '../../preload/types';
 
 export function registerIpcHandlers(mainWindow: BrowserWindow): void {
+  ipcMain.handle('dialog:showOpenDialog', async (event, options) => {
+    
+    const win = BrowserWindow.fromWebContents(event.sender);
+    if (!win) return { canceled: true, filePaths: [] };
+    return await dialog.showOpenDialog(win, options);
+  });
   ipcMain.handle('instances:getServers', async (_event, instanceId: string) => {
     try {
       const dir = InstancesService.getInstance().getInstanceDir(instanceId);
@@ -23,17 +29,21 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
 
       const buffer = fs.readFileSync(serversFile);
       const servers = await new Promise<any[]>((resolve, reject) => {
-        nbt.parse(buffer, (error: any, data: any) => {
-          if (error) {
-            reject(error);
-          } else {
-            const s = data.value.servers?.value?.value || [];
-            resolve(s.map((item: any) => ({
-              name: item.name?.value,
-              ip: item.ip?.value
-            })));
-          }
-        });
+        try {
+          nbt.parse(buffer, (error: any, data: any) => {
+            if (error) {
+              reject(error);
+            } else {
+              const s = data.value.servers?.value?.value || [];
+              resolve(s.map((item: any) => ({
+                name: item.name?.value,
+                ip: item.ip?.value
+              })));
+            }
+          });
+        } catch (e) {
+          reject(e);
+        }
       });
       return servers;
     } catch (err) {
@@ -238,9 +248,9 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
     }
   });
 
-  ipcMain.handle('instances:getInstalledMods', (_event, instanceId: string) => {
+  ipcMain.handle('instances:getInstalledMods', async (_event, instanceId: string, deepScan = false) => {
     try {
-      return InstancesService.getInstance().getInstalledMods(instanceId);
+      return await InstancesService.getInstance().getInstalledMods(instanceId, deepScan);
     } catch (err) {
       console.error('[IPC instances:getInstalledMods] Error:', err);
       return [];
@@ -289,8 +299,9 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
   });
 
   ipcMain.handle('instances:importZip', async (event, zipPath: string) => {
+    console.log('[IPC instances:importZip] called with:', zipPath);
     try {
-      return await instancesService.importZip(zipPath, event.sender);
+      return await ModpackService.getInstance().importLocalZip(zipPath, event.sender);
     } catch (err) {
       console.error('[IPC instances:importZip] Error:', err);
       throw err;
@@ -347,13 +358,14 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
       gameVersion?: string,
       loader?: ModLoaderType,
       source?: 'modrinth' | 'curseforge',
-      page?: number
+      page?: number,
+      sortBy?: string,
+      tags?: string[]
     ) => {
       try {
-        return await ContentService.getInstance().search(query, category, gameVersion, loader, source, page);
+        return await ContentService.getInstance().search(query, category, gameVersion, loader, source, page, sortBy, tags);
       } catch (err) {
         console.error('[IPC content:search] Error:', err);
-        await import("node:fs").appendFileSync('/tmp/hiroki.log', 'Search Error: ' + (err.stack || err) + '\n');
         return { items: [], totalHits: 0 };
       }
     }
@@ -403,6 +415,24 @@ export function registerIpcHandlers(mainWindow: BrowserWindow): void {
       return await ModpackService.getInstance().installModpack(version, name);
     } catch (err) {
       console.error('[IPC content:installModpack] Error:', err);
+      throw err;
+    }
+  });
+
+  ipcMain.handle('content:checkModUpdates', async (_event, instanceId: string) => {
+    try {
+      return await ContentService.getInstance().checkModUpdates(instanceId);
+    } catch (err) {
+      console.error('[IPC content:checkModUpdates] Error:', err);
+      throw err;
+    }
+  });
+
+  ipcMain.handle('content:updateMod', async (_event, instanceId: string, oldFilename: string, newVersion: any) => {
+    try {
+      return await ContentService.getInstance().updateMod(instanceId, oldFilename, newVersion);
+    } catch (err) {
+      console.error('[IPC content:updateMod] Error:', err);
       throw err;
     }
   });

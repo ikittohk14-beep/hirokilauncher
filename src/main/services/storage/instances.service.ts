@@ -3,16 +3,14 @@ import path from 'node:path';
 import fs from 'node:fs';
 import { spawn } from 'node:child_process';
 import { BrowserWindow, shell } from 'electron';
-import fs from 'node:fs';
 import AdmZip from 'adm-zip';
-import path from 'node:path';
-import crypto from 'node:crypto';
 import { exec } from 'node:child_process';
 import type { InstanceMeta, InstalledModFile } from '../../../preload/types';
 import { SettingsService } from './settings.service';
 
 export class InstancesService {
   private static instance: InstancesService;
+  private modsCache = new Map<string, any>();
 
   public static getInstance(): InstancesService {
     if (!InstancesService.instance) {
@@ -54,7 +52,6 @@ export class InstancesService {
             try {
               const content = fs.readFileSync(configPath, 'utf-8');
               const meta = JSON.parse(content) as InstanceMeta;
-              this.syncInstalledContent(meta, instanceDir);
               list.push(meta);
             } catch (readError) {
               console.error(`[InstancesService] Error reading ${configPath}:`, readError);
@@ -66,13 +63,13 @@ export class InstancesService {
       console.error('[InstancesService] Failed to scan instances:', error);
     }
 
-    return list.sort((a, b) => (b.lastPlayedAt || b.createdAt) - (a.lastPlayedAt || a.createdAt));
+    return list.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
   }
 
   private syncInstalledContent(meta: InstanceMeta, instanceDir: string): boolean {
     if (!meta.installedContent) return false;
     let changed = false;
-    const folders = ['mods', 'resourcepacks', 'shaderpacks', 'datapacks'];
+    const folders = ['mods', 'resourcepacks', 'shaderpacks', 'datapacks', 'saves'];
     for (const filename of Object.keys(meta.installedContent)) {
       const cleanFilename = filename.replace(/\.disabled$/, '');
       let exists = false;
@@ -109,7 +106,6 @@ export class InstancesService {
       if (fs.existsSync(configPath)) {
         const content = fs.readFileSync(configPath, 'utf-8');
         const meta = JSON.parse(content) as InstanceMeta;
-        this.syncInstalledContent(meta, instanceDir);
         return meta;
       }
     } catch (error) {
@@ -287,11 +283,45 @@ export class InstancesService {
     return false;
   }
 
-  public getInstalledMods(instanceId: string): InstalledModFile[] {
+  private modsCacheLoaded = false;
+  private getCacheFilePath(): string {
+    return path.join(this.getInstancesBaseDir(), '.mods_meta_cache.json');
+  }
+
+  private loadModsCache(): void {
+    if (this.modsCacheLoaded) return;
+    this.modsCacheLoaded = true;
+    try {
+      const cachePath = this.getCacheFilePath();
+      if (fs.existsSync(cachePath)) {
+        const raw = JSON.parse(fs.readFileSync(cachePath, 'utf-8'));
+        for (const [k, v] of Object.entries(raw)) {
+          this.modsCache.set(k, v);
+        }
+      }
+    } catch (e) {
+      console.warn('[InstancesService] Could not load mods cache:', e);
+    }
+  }
+
+  private saveModsCache(): void {
+    try {
+      const cachePath = this.getCacheFilePath();
+      const obj: Record<string, any> = {};
+      for (const [k, v] of this.modsCache.entries()) {
+        obj[k] = v;
+      }
+      fs.writeFileSync(cachePath, JSON.stringify(obj), 'utf-8');
+    } catch (e) {
+      console.warn('[InstancesService] Could not save mods cache:', e);
+    }
+  }
+
+  public async getInstalledMods(instanceId: string, deepScan = false): Promise<InstalledModFile[]> {
     const instanceDir = this.getInstanceDir(instanceId);
     const result: InstalledModFile[] = [];
     
-    const folderToType: Record<string, ContentCategory> = {
+    const folderToType: Record<string, any> = {
       'mods': 'mod',
       'resourcepacks': 'resourcepack',
       'shaderpacks': 'shader',
@@ -300,30 +330,40 @@ export class InstancesService {
     };
 
     try {
+      this.loadModsCache();
       const meta = this.getById(instanceId);
+      let cacheDirty = false;
 
       for (const [folder, type] of Object.entries(folderToType)) {
         const dirPath = path.join(instanceDir, folder);
         if (!fs.existsSync(dirPath)) {
-          fs.mkdirSync(dirPath, { recursive: true });
           continue;
         }
 
         const files = fs.readdirSync(dirPath, { withFileTypes: true });
         for (const dirent of files) {
           const file = dirent.name;
-          const isDir = dirent.isDirectory();
+          const lowerFile = file.toLowerCase();
+          const isModFile = (type === 'map' && isDir) || 
+                            lowerFile.endsWith('.jar') || 
+                            lowerFile.endsWith('.jar.disabled') || 
+                            lowerFile.endsWith('.zip') || 
+                            lowerFile.endsWith('.zip.disabled') ||
+                            lowerFile.endsWith('.mrpack');
           
-          if ((type === 'map' && isDir) || file.endsWith('.jar') || file.endsWith('.jar.disabled') || file.endsWith('.zip') || file.endsWith('.zip.disabled')) {
+          if (isModFile) {
             const filePath = path.join(dirPath, file);
-            const isEnabled = !file.endsWith('.disabled');
-            let cleanName = file.replace('.disabled', '').replace('.jar', '').replace('.zip', '');
+            const isEnabled = !lowerFile.endsWith('.disabled');
+            let cleanName = file.replace(/\.disabled$/i, '').replace(/\.jar$/i, '').replace(/\.zip$/i, '').replace(/\.mrpack$/i, '');
             let version = 'unknown';
-            let description = undefined;
-            let iconUrl = undefined;
+            let description: string | undefined = undefined;
+            let iconUrl: string | undefined = undefined;
             
-            // Only try to parse mod metadata if it's actually in the mods folder
-            if (folder === 'mods' && (file.endsWith('.jar') || file.endsWith('.jar.disabled'))) {
+            const cleanFilename = file.replace(/\.disabled$/i, '');
+            const installData = meta?.installedContent?.[cleanFilename] || meta?.installedContent?.[file];
+
+            // Only try to parse mod metadata if deepScan is requested (e.g. detailed InstanceView)
+            if (deepScan && folder === 'mods' && (lowerFile.endsWith('.jar') || lowerFile.endsWith('.jar.disabled'))) {
               try {
                 const stat = fs.statSync(filePath);
                 const cacheKey = filePath;
@@ -361,7 +401,7 @@ export class InstancesService {
                       cleanName = nameMatch ? nameMatch[1] : cleanName;
                       if (descMatch) description = descMatch[1] || descMatch[2] || descMatch[3];
                       const versionMatch = text.match(/version\s*=\s*"([^"]+)"/);
-                      if (versionMatch && versionMatch[1] !== '\${file.jarVersion}') version = versionMatch[1];
+                      if (versionMatch && versionMatch[1] !== '${file.jarVersion}') version = versionMatch[1];
                     }
                   }
                   
@@ -370,13 +410,13 @@ export class InstancesService {
                     mtime: stat.mtimeMs,
                     data: { cleanName, version, description, iconUrl }
                   });
+                  cacheDirty = true;
                 }
               } catch(e) {}
+              // Yield to event loop to keep Wayland heartbeats pumping
+              await new Promise(r => setImmediate(r));
             }
             
-            const cleanFilename = file.replace('.disabled', '');
-            const installData = meta?.installedContent?.[cleanFilename];
-
             result.push({
               filename: file,
               name: cleanName,
@@ -391,6 +431,10 @@ export class InstancesService {
             } as any);
           }
         }
+      }
+
+      if (cacheDirty) {
+        this.saveModsCache();
       }
     } catch (error) {
       console.error(`[InstancesService] Failed to read content for ${instanceId}:`, error);

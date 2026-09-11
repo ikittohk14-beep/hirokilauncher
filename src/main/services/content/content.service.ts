@@ -1,5 +1,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
+import crypto from 'node:crypto';
+import { InstancesService } from '../storage/instances.service';
 import type { ContentCategory, ContentItem, ContentVersion, ModLoaderType } from '../../../preload/types';
 import { DownloaderService } from '../downloader/downloader.service';
 
@@ -129,12 +131,14 @@ export class ContentService {
     gameVersion?: string,
     loader?: ModLoaderType,
     source: 'modrinth' | 'curseforge' = 'modrinth',
-    page = 0
+    page = 0,
+    sortBy?: string,
+    tags?: string[]
   ): Promise<{ items: ContentItem[]; totalHits: number }> {
     if (source === 'curseforge') {
-      return this.searchCurseForge(query, category, gameVersion, loader, page);
+      return this.searchCurseForge(query, category, gameVersion, loader, page, sortBy, tags);
     }
-    return this.searchModrinth(query, category, gameVersion, loader, page);
+    return this.searchModrinth(query, category, gameVersion, loader, page, sortBy, tags);
   }
 
   private async searchModrinth(
@@ -142,7 +146,9 @@ export class ContentService {
     category: ContentCategory,
     gameVersion?: string,
     loader?: ModLoaderType,
-    page = 0
+    page = 0,
+    sortBy?: string,
+    tags?: string[]
   ): Promise<{ items: ContentItem[]; totalHits: number }> {
     try {
       const limit = 20;
@@ -171,14 +177,18 @@ export class ContentService {
       if (loader && loader !== 'vanilla' && (category === 'mod' || category === 'modpack')) {
         facets.push([`categories:${loader}`]);
       }
+      if (tags && tags.length > 0) {
+        tags.forEach(t => facets.push([`categories:${t}`]));
+      }
 
-      
       const params = new URLSearchParams({
         query: query.trim(),
         limit: limit.toString(),
         offset: offset.toString(),
         facets: JSON.stringify(facets),
+        index: sortBy || 'relevance'
       });
+
 
       const response = await fetch(`${this.modrinthBase}/search?${params.toString()}`, {
         headers: { 'User-Agent': 'HirokiLauncher/1.0' },
@@ -216,7 +226,9 @@ export class ContentService {
     category: ContentCategory,
     gameVersion?: string,
     loader?: ModLoaderType,
-    page = 0
+    page = 0,
+    sortBy?: string,
+    tags?: string[]
   ): Promise<{ items: ContentItem[]; totalHits: number }> {
     try {
       const pageSize = 20;
@@ -233,12 +245,20 @@ export class ContentService {
       };
 
       
+      
+      // Sort mapping
+      let curseIndex = '1'; // Default: Featured/Relevance
+      if (sortBy === 'downloads') curseIndex = '2'; // Popularity
+      else if (sortBy === 'updated') curseIndex = '3'; // LastUpdated
+      else if (sortBy === 'newest') curseIndex = '4'; // Name/Creation? Actually 4 is Name. 
+
       const params = new URLSearchParams({
         gameId: '432',
         classId: classIdMap[category].toString(),
         pageSize: pageSize.toString(),
-        index: index.toString(),
+        index: curseIndex,
       });
+
 
       if (query.trim()) {
         params.append('searchFilter', query.trim());
@@ -424,10 +444,109 @@ export class ContentService {
    * datapack -> instanceDir/datapacks
    * map -> instanceDir/saves
    */
+  
+
+  public async checkModUpdates(instanceId: string): Promise<{ filename: string; update: ContentVersion }[]> {
+    const instance = InstancesService.getInstance().getById(instanceId);
+    if (!instance) return [];
+
+    const mods = (await InstancesService.getInstance().getInstalledMods(instanceId)).filter(m => m.type === 'mod');
+    const hashes = [];
+    const hashToMod = new Map<string, any>();
+
+    
+    for (const mod of mods) {
+      try {
+        const modPath = path.join(InstancesService.getInstance().getInstanceDir(instanceId), 'mods', mod.filename);
+        if (fs.existsSync(modPath)) {
+          const hash = await new Promise((resolve, reject) => {
+            const hash = crypto.createHash('sha1');
+            const stream = fs.createReadStream(modPath);
+            stream.on('error', err => reject(err));
+            stream.on('data', chunk => hash.update(chunk));
+            stream.on('end', () => resolve(hash.digest('hex')));
+          });
+          hashes.push(hash);
+          hashToMod.set(hash, mod);
+        }
+      } catch (err) {
+        console.error('Failed to hash', mod.filename, err);
+      }
+    }
+
+
+    if (hashes.length === 0) return [];
+
+    try {
+      const response = await fetch(`${this.modrinthBase}/version_files`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'User-Agent': 'HirokiLauncher/1.0'
+        },
+        body: JSON.stringify({
+          hashes,
+          algorithm: 'sha1'
+        })
+      });
+
+      if (!response.ok) {
+        console.error('Modrinth hash api failed', response.status);
+        return [];
+      }
+
+      const hashData = await response.json() as Record<string, any>;
+      const updates = [];
+
+      for (const [hash, versionInfo] of Object.entries(hashData)) {
+        const projectId = versionInfo.project_id;
+        const currentMod = hashToMod.get(hash);
+        
+        // Get latest versions for this project matching instance
+        const latestVersions = await this.getVersions(projectId, 'modrinth', instance.gameVersion, instance.loaderType);
+        if (latestVersions.length > 0) {
+          const latest = latestVersions[0];
+          // Simple check: if latest version ID is different, we assume it's an update
+          // or if latest datePublished > versionInfo.date_published
+          if (latest.id !== versionInfo.id) {
+            updates.push({
+              filename: currentMod.filename,
+              update: latest
+            });
+          }
+        }
+      }
+      return updates;
+    } catch (err) {
+      console.error('checkModUpdates failed', err);
+      return [];
+    }
+  }
+
+  public async updateMod(instanceId: string, oldFilename: string, newVersion: ContentVersion): Promise<boolean> {
+    const instanceDir = InstancesService.getInstance().getInstanceDir(instanceId);
+    const modsDir = path.join(instanceDir, 'mods');
+    const oldPath = path.join(modsDir, oldFilename);
+    
+    // Install new content
+    const success = await this.installContentIntoInstance(instanceDir, newVersion, 'mod');
+    
+    // If successful, delete the old mod
+    if (success && fs.existsSync(oldPath)) {
+      try {
+        fs.unlinkSync(oldPath);
+      } catch (err) {
+        console.error('Failed to delete old mod', err);
+      }
+    }
+    return success;
+  }
+
   public async installContentIntoInstance(
     instanceDir: string,
     version: ContentVersion,
-    category: ContentCategory
+    category: ContentCategory,
+    installedDependencies = new Set<string>()
   ): Promise<boolean> {
     try {
       const folderMap: Record<ContentCategory, string> = {
@@ -456,6 +575,33 @@ export class ContentService {
         size: version.size,
       });
 
+      // Handle Modrinth dependencies
+      if (version.dependencies && version.dependencies.length > 0) {
+        const requiredDeps = version.dependencies.filter((d) => d.dependencyType === 'required');
+        
+        for (const dep of requiredDeps) {
+          if (installedDependencies.has(dep.projectId)) continue;
+          installedDependencies.add(dep.projectId);
+
+          try {
+            // Get versions for the dependency
+            const depVersions = await this.getVersions(
+              dep.projectId,
+              'modrinth',
+              version.gameVersions?.[0], // Try to match the same game version
+              version.loaders?.[0] as ModLoaderType // Try to match the same loader
+            );
+
+            if (depVersions.length > 0) {
+              const targetDepVersion = depVersions[0];
+              await this.installContentIntoInstance(instanceDir, targetDepVersion, category, installedDependencies);
+            }
+          } catch (depErr) {
+            console.error(`[ContentService] Failed to install dependency ${dep.projectId}:`, depErr);
+          }
+        }
+      }
+
       return true;
     } catch (error) {
       console.error('[ContentService] installContentIntoInstance failed:', error);
@@ -463,3 +609,4 @@ export class ContentService {
     }
   }
 }
+

@@ -9,8 +9,14 @@ export class SettingsService {
   private cachedSettings: AppSettings | null = null;
 
   private constructor() {
-    const dataHome = process.env.XDG_DATA_HOME || path.join(os.homedir(), '.local', 'share');
-    const baseDir = path.join(dataHome, 'hiroki-launcher');
+    let baseDir: string;
+    if (process.platform === 'win32') {
+      const appData = process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming');
+      baseDir = path.join(appData, 'hiroki-launcher');
+    } else {
+      const dataHome = process.env.XDG_DATA_HOME || path.join(os.homedir(), '.local', 'share');
+      baseDir = path.join(dataHome, 'hiroki-launcher');
+    }
     this.settingsFilePath = path.join(baseDir, 'settings.json');
 
     try {
@@ -34,17 +40,37 @@ export class SettingsService {
     // Default: use 4096MB or 50% of available RAM if less than 8GB
     const suggestedMaxRam = Math.min(4096, Math.max(2048, Math.floor(totalMemoryMb * 0.5)));
 
-    const dataHome = process.env.XDG_DATA_HOME || path.join(os.homedir(), '.local', 'share');
-    const defaultGameDir = path.join(dataHome, 'hiroki-launcher', 'game_data');
-    
+    let defaultGameDir: string;
+    let defaultJavaPath: string;
+
+    if (process.platform === 'win32') {
+      const appData = process.env.APPDATA || path.join(os.homedir(), 'AppData', 'Roaming');
+      defaultGameDir = path.join(appData, 'hiroki-launcher', 'game_data');
+      defaultJavaPath = 'javaw.exe';
+    } else {
+      const dataHome = process.env.XDG_DATA_HOME || path.join(os.homedir(), '.local', 'share');
+      defaultGameDir = path.join(dataHome, 'hiroki-launcher', 'game_data');
+      defaultJavaPath = '/usr/bin/java';
+    }
+
     return {
       gameDirectory: defaultGameDir,
-      javaPath: '/usr/bin/java',
+      javaPath: defaultJavaPath,
       minMemoryMb: 1024,
       maxMemoryMb: suggestedMaxRam,
       customJvmArgs: '-XX:+UseG1GC -XX:+ParallelRefProcEnabled -XX:MaxGCPauseMillis=200',
       theme: 'dark',
       autoCloseOnLaunch: false,
+      tileShape: 'compact',
+      layout: [
+        { i: 'col1', x: 0, y: 0, w: 6, h: 3, minW: 4, minH: 2 },
+        { i: 'music', x: 0, y: 3, w: 6, h: 1, minW: 4, minH: 1 },
+        { i: 'shelf', x: 6, y: 0, w: 18, h: 2, minW: 8, minH: 2 },
+        { i: 'art', x: 6, y: 2, w: 5, h: 2, minW: 4, minH: 2 },
+        { i: 'mods', x: 11, y: 2, w: 6, h: 2, minW: 5, minH: 2 },
+        { i: 'launch', x: 17, y: 2, w: 7, h: 2, minW: 6, minH: 2 }
+      ],
+      showSnapshots: true,
     };
   }
 

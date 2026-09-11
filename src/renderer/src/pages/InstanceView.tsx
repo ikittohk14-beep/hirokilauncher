@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 
 const FOOD_EMOJIS = ["🍱", "🍘", "🍙", "🍚", "🍛", "🍜", "🍝", "🍠", "🍢", "🍣", "🍤", "🍥", "🥟", "🥠", "🥡", "🥮", "🍡"];
 import { loadLocalData, saveLocalData, StoreKeys } from '../utils/store';
-import { ArrowLeft, Plus, Folder, Trash2, CheckCircle2, XCircle, Search, Compass } from 'lucide-react';
-import type { InstanceMeta, InstalledModFile } from '../../../preload/types';
+import { ArrowLeft, Plus, Folder, Trash2, CheckCircle2, XCircle, Search, Compass, RefreshCw } from 'lucide-react';
+import type { InstanceMeta, InstalledModFile, ContentVersion } from '../../../preload/types';
 
 interface InstanceViewProps {
   instanceId: string;
@@ -33,15 +33,54 @@ export const InstanceView: React.FC<InstanceViewProps> = ({
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 50;
   const [updatingMod, setUpdatingMod] = useState<string | null>(null);
-  const [modVersions, setModVersions] = useState<import('../../../preload/types').ContentVersion[]>([]);
+  const [modVersions, setModVersions] = useState<ContentVersion[]>([]);
   const [selectedVersionId, setSelectedVersionId] = useState<string>('');
+
+  const [checkingUpdates, setCheckingUpdates] = useState(false);
+  const [updates, setUpdates] = useState<{ filename: string; update: ContentVersion }[]>([]);
+  const [updatingAll, setUpdatingAll] = useState(false);
+
+  const handleCheckUpdates = async () => {
+    if (checkingUpdates || !instanceId) return;
+    setCheckingUpdates(true);
+    try {
+      const result = await window.electronAPI.content.checkModUpdates(instanceId);
+      setUpdates(result || []);
+      if (!result || result.length === 0) {
+        alert('Все моды обновлены до актуальных версий!');
+      }
+    } catch (err) {
+      console.error('[InstanceView] Error checking updates:', err);
+      alert('Ошибка при проверке обновлений.');
+    } finally {
+      setCheckingUpdates(false);
+    }
+  };
+
+  const handleUpdateAll = async () => {
+    if (updatingAll || !instanceId || updates.length === 0) return;
+    setUpdatingAll(true);
+    try {
+      for (const item of updates) {
+        await window.electronAPI.content.updateMod(instanceId, item.filename, item.update);
+      }
+      setUpdates([]);
+      await loadData();
+      alert('Все моды успешно обновлены!');
+    } catch (err) {
+      console.error('[InstanceView] Error updating all mods:', err);
+      alert('Ошибка при обновлении некоторых модов.');
+    } finally {
+      setUpdatingAll(false);
+    }
+  };
 
   const loadData = async () => {
     setLoading(true);
     try {
       const meta = await window.electronAPI.instances.getById(instanceId);
       setInstance(meta);
-      const installedMods = await window.electronAPI.instances.getInstalledMods(instanceId);
+      const installedMods = await window.electronAPI.instances.getInstalledMods(instanceId, true);
       setMods(installedMods);
     } catch (err) {
       console.error('[InstanceView] Error loading data:', err);
@@ -214,6 +253,27 @@ export const InstanceView: React.FC<InstanceViewProps> = ({
             </div>
 
             <div className="flex items-center gap-2 w-full sm:w-auto">
+              {activeTab === 'mods' && (
+                updates.length > 0 ? (
+                  <button
+                    onClick={handleUpdateAll}
+                    disabled={updatingAll}
+                    className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-[var(--blue)] text-white text-xs font-semibold hover:brightness-110 transition-all shadow-sm"
+                  >
+                    <RefreshCw size={14} className={updatingAll ? "animate-spin" : ""} />
+                    <span>{updatingAll ? 'Обновление...' : `Обновить все (${updates.length})`}</span>
+                  </button>
+                ) : (
+                  <button
+                    onClick={handleCheckUpdates}
+                    disabled={checkingUpdates}
+                    className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-hiroki-card border border-hiroki-border hover:border-slate-600 text-xs font-semibold text-slate-200 hover:text-white transition-all"
+                  >
+                    <RefreshCw size={14} className={checkingUpdates ? "animate-spin" : ""} />
+                    <span>{checkingUpdates ? 'Проверка...' : 'Проверить обновления'}</span>
+                  </button>
+                )
+              )}
               <button
                 onClick={() => fileInputRef.current?.click()}
                 className="flex-1 sm:flex-none flex items-center justify-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-hiroki-card border border-hiroki-border hover:border-slate-600 text-xs font-semibold text-slate-200 hover:text-white transition-all"
@@ -317,6 +377,27 @@ export const InstanceView: React.FC<InstanceViewProps> = ({
                     </div>
 
                     <div className="flex items-center gap-1 flex-shrink-0">
+                      {updates.find(u => u.filename === mod.filename) && updatingMod !== mod.filename && (
+                        <button
+                          onClick={async () => {
+                            const u = updates.find(x => x.filename === mod.filename);
+                            if (!u) return;
+                            try {
+                              await window.electronAPI.content.updateMod(instanceId, mod.filename, u.update);
+                              setUpdates(prev => prev.filter(x => x.filename !== mod.filename));
+                              await loadData();
+                            } catch(e) {
+                              console.error(e);
+                              alert('Не удалось обновить мод');
+                            }
+                          }}
+                          className="px-2 py-1 text-[10px] font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 rounded transition-colors flex items-center gap-1"
+                          title={`Обновить до ${updates.find(u => u.filename === mod.filename)?.update.versionNumber}`}
+                        >
+                          <RefreshCw size={11} />
+                          <span>Обновить ({updates.find(u => u.filename === mod.filename)?.update.versionNumber})</span>
+                        </button>
+                      )}
                       {mod.projectId && mod.source && instance && (
                         updatingMod === mod.filename ? (
                           <div className="flex items-center gap-2">

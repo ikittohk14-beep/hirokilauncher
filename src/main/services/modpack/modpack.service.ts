@@ -56,6 +56,125 @@ export class ModpackService {
   /**
    * Installs a modpack from either Modrinth (.mrpack) or CurseForge (.zip)
    */
+  
+  public async importLocalZip(archivePath: string, webContents?: any, customName?: string): Promise<InstanceMeta> {
+    try {
+      if (webContents) {
+        webContents.send('instances:importProgress', { percentage: 10, text: 'Чтение архива...' });
+      }
+      
+      const zip = new AdmZip(archivePath);
+      const zipEntries = zip.getEntries();
+
+      // Check if Modrinth (.mrpack)
+      const mrIndexEntry = zipEntries.find((e) => e.entryName === 'modrinth.index.json');
+      if (mrIndexEntry) {
+        if (webContents) webContents.send('instances:importProgress', { percentage: 20, text: 'Формат: Modrinth. Подготовка...' });
+        const packName = customName || path.parse(archivePath).name;
+        return await this.installModrinthModpack(zip, mrIndexEntry, packName);
+      }
+
+      // Check if CurseForge (.zip)
+      const cfManifestEntry = zipEntries.find((e) => e.entryName === 'manifest.json');
+      let isCF = false;
+      if (cfManifestEntry) {
+        try {
+          const m = JSON.parse(cfManifestEntry.getData().toString('utf-8'));
+          if (m.manifestType === 'minecraftModpack' || m.minecraft) isCF = true;
+        } catch(e) {}
+      }
+      if (isCF) {
+        if (webContents) webContents.send('instances:importProgress', { percentage: 20, text: 'Формат: CurseForge. Подготовка...' });
+        const packName = customName || path.parse(archivePath).name;
+        return await this.installCurseForgeModpack(zip, cfManifestEntry, packName);
+      }
+
+      // Fallback: Raw Instance Zip
+      if (webContents) webContents.send('instances:importProgress', { percentage: 20, text: 'Формат: Обычная сборка. Распаковка...' });
+      const packName = customName || path.parse(archivePath).name;
+      
+      const instance = InstancesService.getInstance().create({
+        name: packName,
+        gameVersion: '1.20.1', // Will try to guess or let user change later
+        loaderType: 'vanilla'
+      });
+      
+      const instanceDir = InstancesService.getInstance().getInstanceDir(instance.id);
+      
+      return new Promise<InstanceMeta>((resolve, reject) => {
+        zip.extractAllToAsync(instanceDir, true, false, (error) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          
+          try {
+            // Check if there's a single wrapper folder
+            const entries = fs.readdirSync(instanceDir);
+            if (entries.length === 2 && entries.includes('instance.json')) {
+                // Ignore instance.json when checking
+            }
+            if (entries.length === 1 || (entries.length === 2 && entries.includes('instance.json'))) {
+              const singleEntry = entries.find(e => e !== 'instance.json') || entries[0];
+              const singleEntryPath = path.join(instanceDir, singleEntry);
+              
+              if (fs.statSync(singleEntryPath).isDirectory()) {
+                console.log('[ModpackService] Flattening single folder:', singleEntryPath);
+                const subEntries = fs.readdirSync(singleEntryPath);
+                for (const se of subEntries) {
+                  const srcPath = path.join(singleEntryPath, se);
+                  const destPath = path.join(instanceDir, se);
+                  
+                  // if folder already exists (e.g. from create), merge it
+                  if (fs.existsSync(destPath)) {
+                      if (fs.statSync(srcPath).isDirectory() && fs.statSync(destPath).isDirectory()) {
+                          // merge
+                          const sub2 = fs.readdirSync(srcPath);
+                          for (const s2 of sub2) {
+                              fs.renameSync(path.join(srcPath, s2), path.join(destPath, s2));
+                          }
+                          fs.rmdirSync(srcPath);
+                      } else {
+                          // overwrite
+                          fs.rmSync(destPath, { recursive: true, force: true });
+                          fs.renameSync(srcPath, destPath);
+                      }
+                  } else {
+                      fs.renameSync(srcPath, destPath);
+                  }
+                }
+                fs.rmdirSync(singleEntryPath);
+              }
+            }
+            
+            // Try to detect loader from mods folder or version files if possible
+            const modsDir = path.join(instanceDir, 'mods');
+            if (fs.existsSync(modsDir)) {
+                const mods = fs.readdirSync(modsDir);
+                if (mods.some(m => m.includes('fabric'))) {
+                    instance.loaderType = 'fabric';
+                } else if (mods.some(m => m.includes('forge'))) {
+                    instance.loaderType = 'forge';
+                }
+            }
+            
+            // Save updated meta
+            InstancesService.getInstance().update(instance.id, instance);
+            
+            if (webContents) webContents.send('instances:importProgress', { percentage: 100, text: 'Готово!' });
+            resolve(instance);
+          } catch (err) {
+            reject(err);
+          }
+        });
+      });
+      
+    } catch (error) {
+      console.error('[ModpackService] Local zip import failed:', error);
+      throw error;
+    }
+  }
+
   public async installModpack(version: ContentVersion, customName?: string): Promise<InstanceMeta> {
     const tempDir = path.join(SettingsService.getInstance().getBaseDir(), 'temp');
     if (!fs.existsSync(tempDir)) {
@@ -217,7 +336,7 @@ export class ModpackService {
     const tasks: DownloadTask[] = [];
 
     // Process in batches of 10 to fetch URLs
-    for (const mod of manifest.files) {
+    for (const mod of (manifest.files || [])) {
       try {
         const fileUrl = `https://api.curseforge.com/v1/mods/${mod.projectID}/files/${mod.fileID}`;
         const resp = await fetch(fileUrl, {

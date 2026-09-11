@@ -13,6 +13,7 @@ import type {
 } from './types';
 
 const api: ElectronAPI = {
+  onMusicUpdate: (callback: (data: { status: string, artist: string, title: string, artUrl: string }) => void) => ipcRenderer.on('music-update', (_event, data) => callback(data)),
   window: {
     minimize: () => ipcRenderer.invoke('window:minimize'),
     maximize: () => ipcRenderer.invoke('window:maximize'),
@@ -35,12 +36,15 @@ const api: ElectronAPI = {
     loginBrowserElyBy: () => ipcRenderer.invoke('accounts:loginBrowserElyBy'),
     remove: (id: string) => ipcRenderer.invoke('accounts:remove', id),
   },
+  dialog: {
+    showOpenDialog: (options: any) => ipcRenderer.invoke('dialog:showOpenDialog', options)
+  },
   instances: {
     getAll: () => ipcRenderer.invoke('instances:getAll'),
     getById: (id: string) => ipcRenderer.invoke('instances:getById', id),
     create: (meta: Omit<InstanceMeta, 'id' | 'createdAt'>) => ipcRenderer.invoke('instances:create', meta),
     delete: (id: string) => ipcRenderer.invoke('instances:delete', id),
-    getInstalledMods: (instanceId: string) => ipcRenderer.invoke('instances:getInstalledMods', instanceId),
+    getInstalledMods: (instanceId: string, deepScan?: boolean) => ipcRenderer.invoke('instances:getInstalledMods', instanceId, deepScan),
     toggleMod: (instanceId: string, filename: string, enabled: boolean) =>
       ipcRenderer.invoke('instances:toggleMod', instanceId, filename, enabled),
     deleteMod: (instanceId: string, filename: string) => ipcRenderer.invoke('instances:deleteMod', instanceId, filename),
@@ -61,8 +65,17 @@ const api: ElectronAPI = {
       ipcRenderer.invoke('versions:getLoaderVersions', gameVersion, loader),
   },
   content: {
-    search: (query: string, category: ContentCategory, gameVersion?: string, loader?: ModLoaderType, source?: 'modrinth' | 'curseforge', page?: number) =>
-      ipcRenderer.invoke('content:search', query, category, gameVersion, loader, source, page),
+    search: (
+      query: string,
+      category: ContentCategory,
+      gameVersion?: string,
+      loader?: ModLoaderType,
+      source?: 'modrinth' | 'curseforge',
+      page?: number,
+      sortBy?: string,
+      tags?: string[]
+    ) =>
+      ipcRenderer.invoke('content:search', query, category, gameVersion, loader, source, page, sortBy, tags),
     getProject: (id: string, source: string) => ipcRenderer.invoke('content:getProject', id, source),
     getVersions: (projectId: string, source: 'modrinth' | 'curseforge', gameVersion?: string, loader?: ModLoaderType) =>
       ipcRenderer.invoke('content:getVersions', projectId, source, gameVersion, loader),
@@ -70,6 +83,10 @@ const api: ElectronAPI = {
       ipcRenderer.invoke('content:installContent', instanceId, projectId, source, version, category),
     installModpack: (version: ContentVersion, name: string) =>
       ipcRenderer.invoke('content:installModpack', version, name),
+    checkModUpdates: (instanceId: string) =>
+      ipcRenderer.invoke('content:checkModUpdates', instanceId),
+    updateMod: (instanceId: string, oldFilename: string, newVersion: ContentVersion) =>
+      ipcRenderer.invoke('content:updateMod', instanceId, oldFilename, newVersion),
   },
   launcher: {
     launch: (instanceId: string) => ipcRenderer.invoke('launcher:launch', instanceId),

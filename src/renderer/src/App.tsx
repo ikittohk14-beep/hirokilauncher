@@ -35,10 +35,14 @@ export const App: React.FC = () => {
   const runningInstanceIdRef = React.useRef<string | null>(null);
   const [launchProgress, setLaunchProgress] = useState<LaunchProgress | null>(null);
   const [logs, setLogs] = useState<GameLog[]>([]);
+  const [settings, setSettings] = useState<any>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
 
   const refreshData = async () => {
     try {
       const allInstances = await window.electronAPI.instances.getAll();
+      const s = await window.electronAPI.settings.get();
+      setSettings(s);
       setInstances(allInstances);
       if (allInstances.length > 0) {
         if (!selectedInstance || !allInstances.find((i) => i.id === selectedInstance.id)) {
@@ -148,6 +152,8 @@ export const App: React.FC = () => {
             <div className="page-transition" style={{ flex: 1, display: "flex", flexDirection: "column", minHeight: 0 }}>
               <div style={{ display: currentTab === 'home' ? 'flex' : 'none', flex: 1, height: '100%' }}>
                 <Home
+                  isEditMode={isEditMode}
+                  settings={settings}
                   instances={instances}
                   selectedInstance={selectedInstance}
                   onSelectInstance={setSelectedInstance}
@@ -179,7 +185,7 @@ export const App: React.FC = () => {
               </div>
 
               <div style={{ display: currentTab === 'settings' ? 'flex' : 'none', flex: 1, height: '100%' }}>
-                <Settings />
+                <Settings isEditMode={isEditMode} setIsEditMode={setIsEditMode} />
               </div>
 
               <div style={{ display: currentTab === 'console' ? 'flex' : 'none', flex: 1, height: '100%' }}>

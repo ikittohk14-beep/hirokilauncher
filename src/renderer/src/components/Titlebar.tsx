@@ -28,7 +28,7 @@ export const Titlebar: React.FC = () => {
             fontFamily: "'Plus Jakarta Sans', sans-serif",
           }}
         >
-          HIROKILAUNCHER
+          HIROKILAUNCHER {import.meta.env.DEV ? 'BETA' : ''}
         </div>
       </div>
 

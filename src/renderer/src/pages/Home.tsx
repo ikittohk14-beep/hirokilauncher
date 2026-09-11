@@ -2,7 +2,10 @@ import React from 'react';
 import type { InstanceMeta, LaunchProgress, Account } from '../../../preload/types';
 import { BentoGrid } from '../components/BentoGrid';
 
+import type { AppSettings } from '../../../preload/types';
 interface HomeProps {
+  isEditMode: boolean;
+  settings: AppSettings | null;
   instances: InstanceMeta[];
   selectedInstance: InstanceMeta | null;
   onSelectInstance: (instance: InstanceMeta) => void;
@@ -16,6 +19,8 @@ interface HomeProps {
 }
 
 export const Home: React.FC<HomeProps> = ({
+  isEditMode,
+  settings,
   instances,
   selectedInstance,
   onSelectInstance,
@@ -29,12 +34,15 @@ export const Home: React.FC<HomeProps> = ({
 }) => {
   return (
     <BentoGrid
+      isEditMode={isEditMode}
+      settings={settings}
       instances={instances}
       selectedInstance={selectedInstance}
       onSelectInstance={onSelectInstance}
       onAddInstance={onOpenCreateModal}
       onManageInstance={onOpenManageInstance}
-      launchStatus={isRunning ? (launchProgress || { percentage: 100, step: 'В игре' }) : launchProgress}
+      launchStatus={launchProgress}
+      isRunning={isRunning}
       currentAccount={activeAccount}
       onLaunch={onLaunch}
       onKill={onKill}

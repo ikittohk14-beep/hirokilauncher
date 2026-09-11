@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import ReactMarkdown from 'react-markdown';
-import {
+import { ChevronDown,
   Search,
   Download,
   Check,
@@ -15,6 +15,7 @@ import type {
   ContentItem,
   ContentVersion,
   InstanceMeta,
+  MinecraftVersionItem,
   ModLoaderType,
 } from '../../../preload/types';
 
@@ -34,6 +35,12 @@ export const Catalog: React.FC<CatalogProps> = ({
   const [source, setSource] = useState<'modrinth' | 'curseforge'>('modrinth');
   const [category, setCategory] = useState<ContentCategory>(initialCategory);
   const [query, setQuery] = useState('');
+  const [sortBy, setSortBy] = useState<'relevance' | 'downloads' | 'newest' | 'updated'>('relevance');
+  const [tags, setTags] = useState<string[]>([]);
+  const [customVersion, setCustomVersion] = useState<string>('');
+  const [customLoader, setCustomLoader] = useState<string>('');
+  const [mcVersions, setMcVersions] = useState<MinecraftVersionItem[]>([]);
+  const [showSnapshots, setShowSnapshots] = useState<boolean>(true);
   const [searchTimeout, setSearchTimeout] = useState<NodeJS.Timeout | null>(null);
   const [results, setResults] = useState<ContentItem[]>([]);
   const [page, setPage] = useState(0);
@@ -50,6 +57,24 @@ export const Catalog: React.FC<CatalogProps> = ({
       setTargetInstanceId(instances[0].id);
     }
   }, [instances, targetInstanceId]);
+
+  useEffect(() => {
+    const fetchVersions = async () => {
+      try {
+        const [v, settings] = await Promise.all([
+          window.electronAPI.versions.getMinecraftVersions(),
+          window.electronAPI.settings.get()
+        ]);
+        setMcVersions(v || []);
+        if (settings && typeof settings.showSnapshots === 'boolean') {
+          setShowSnapshots(settings.showSnapshots);
+        }
+      } catch (err) {
+        console.error('[Catalog] Failed to load Minecraft versions or settings:', err);
+      }
+    };
+    fetchVersions();
+  }, []);
 
   // Installing states
   const [installingId, setInstallingId] = useState<string | null>(null);
@@ -95,6 +120,26 @@ export const Catalog: React.FC<CatalogProps> = ({
     fetchMods();
   }, [targetInstanceId, instances, installingId]);
 
+
+  const SORT_OPTIONS = [
+    { id: 'relevance', label: 'Релевантность' },
+    { id: 'downloads', label: 'Популярность' },
+    { id: 'newest', label: 'Новые' },
+    { id: 'updated', label: 'Недавно обновленные' },
+  ];
+
+  const TAG_OPTIONS = [
+    { id: 'optimization', label: 'Оптимизация' },
+    { id: 'library', label: 'Библиотеки' },
+    { id: 'technology', label: 'Технологии' },
+    { id: 'magic', label: 'Магия' },
+    { id: 'adventure', label: 'Приключения' },
+    { id: 'worldgen', label: 'Генерация мира' },
+    { id: 'decoration', label: 'Декор' },
+    { id: 'equipment', label: 'Снаряжение' },
+    { id: 'food', label: 'Еда' },
+  ];
+
   const categories: { id: ContentCategory; label: string }[] = [
     { id: 'mod', label: 'Моды' },
     { id: 'modpack', label: 'Сборки (Модпаки)' },
@@ -111,23 +156,38 @@ export const Catalog: React.FC<CatalogProps> = ({
     }, 500);
     setSearchTimeout(timeout);
     return () => clearTimeout(timeout);
-  }, [query, category, source, targetInstanceId]);
+  }, [query, category, source, targetInstanceId, sortBy, tags, customVersion, customLoader]);
 
 
   useEffect(() => {
     if (page > 0) {
-      handleSearch(query, category, source, page);
+      handleSearch(query, category, source, page, sortBy, tags);
     }
   }, [page]);
 
-  const handleSearch = async (searchQuery = query, cat = category, src = source, pageNum = 0) => {
+  const handleSearch = async (searchQuery = query, cat = category, src = source, pageNum = 0, sort = sortBy, t = tags) => {
     setLoading(true);
     loadingRef.current = true;
     try {
       const activeInst = instances.find((i) => i.id === targetInstanceId);
-      const gameVersion = cat === 'modpack' ? undefined : activeInst?.gameVersion;
-      const loader: ModLoaderType | undefined =
-        cat === 'modpack' ? undefined : activeInst?.loaderType;
+      
+      let gameVersion: string | undefined = undefined;
+      if (cat !== 'modpack') {
+        if (customVersion && customVersion !== 'all' && customVersion !== 'auto') {
+          gameVersion = customVersion;
+        } else if (customVersion === 'auto' || customVersion === '') {
+          gameVersion = activeInst?.gameVersion;
+        }
+      }
+
+      let loader: ModLoaderType | undefined = undefined;
+      if (cat === 'mod' || cat === 'modpack') {
+        if (customLoader && customLoader !== 'all' && customLoader !== 'auto') {
+          loader = customLoader as ModLoaderType;
+        } else if (customLoader === 'auto' || customLoader === '') {
+          loader = activeInst?.loaderType;
+        }
+      }
 
       const res = await window.electronAPI.content.search(
         searchQuery,
@@ -135,7 +195,9 @@ export const Catalog: React.FC<CatalogProps> = ({
         gameVersion,
         loader,
         src,
-        pageNum
+        pageNum,
+        sort,
+        t
       );
       setResults(pageNum === 0 ? res.items : (prev) => {
         const ids = new Set(prev.map(i => i.id));
@@ -148,16 +210,6 @@ export const Catalog: React.FC<CatalogProps> = ({
       loadingRef.current = false;
     }
   };
-
-  useEffect(() => {
-    setPage(0); handleSearch(query, category, source, 0);
-  }, [category, source, targetInstanceId]);
-
-  useEffect(() => {
-    if (page > 0) {
-      handleSearch(query, category, source, page);
-    }
-  }, [page]);
   
   const selectMod = async (item: any) => {
     setSelectedMod(item);
@@ -304,6 +356,8 @@ const handleUninstall = async (item: ContentItem, explicitFilename?: string) => 
     }
   };
 
+  const activeInst = instances.find((i) => i.id === targetInstanceId);
+
   return (
     <div className="w-full h-full flex flex-col p-8 overflow-y-auto" >
       {/* Header & Source switcher */}
@@ -362,43 +416,137 @@ const handleUninstall = async (item: ContentItem, explicitFilename?: string) => 
 
       {/* Filter bar & Target instance selection */}
       <div className="flex flex-col md:flex-row items-center justify-between gap-3 mb-6 flex-shrink-0">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            setPage(0); handleSearch(query, category, source, 0);
-          }}
-          className="relative flex-1 w-full"
-        >
-          <Search size={15} className="absolute left-3 top-2.5 text-slate-500" />
-          <input
-            type="text"
-            placeholder={`Поиск по ${source === 'modrinth' ? 'Modrinth' : 'CurseForge'}...`}
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            className="w-full pl-9 pr-20 py-2 bg-hiroki-card border border-hiroki-border rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500"
-          />
-          <button
-            type="submit"
-            className="absolute right-2 top-1.5 px-3 py-1 bg-[var(--blue)] hover:brightness-110 text-white rounded-lg text-xs font-semibold transition-all"
-          >
-            Поиск
-          </button>
-        </form>
+                <div className="flex-1 w-full flex flex-col gap-2">
+          <div className="flex gap-2">
+            <form
+              onSubmit={(e) => {
+                e.preventDefault();
+                setPage(0); handleSearch(query, category, source, 0, sortBy, tags);
+              }}
+              className="relative flex-1"
+            >
+              <Search size={15} className="absolute left-3 top-2.5 text-slate-500" />
+              <input
+                type="text"
+                placeholder={`Поиск по ${source === 'modrinth' ? 'Modrinth' : 'CurseForge'}...`}
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                className="w-full pl-9 pr-20 py-2 bg-hiroki-card border border-hiroki-border rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-none focus:border-blue-500"
+              />
+              <button
+                type="submit"
+                className="absolute right-2 top-1.5 px-3 py-1 bg-[var(--blue)] hover:brightness-110 text-white rounded-lg text-xs font-semibold transition-all"
+              >
+                Поиск
+              </button>
+            </form>
+                        <div className="relative">
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="appearance-none px-3 py-2 pr-8 bg-hiroki-card border border-hiroki-border rounded-xl text-xs text-slate-200 focus:outline-none focus:border-blue-500 cursor-pointer min-w-[140px]"
+              >
+                {SORT_OPTIONS.map((s) => (
+                  <option key={s.id} value={s.id}>{s.label}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+            </div>
+            <div className="relative">
+              <select
+                value={customVersion}
+                onChange={(e) => setCustomVersion(e.target.value)}
+                className="appearance-none px-3 py-2 pr-8 bg-hiroki-card border border-hiroki-border rounded-xl text-xs text-slate-200 focus:outline-none focus:border-blue-500 cursor-pointer min-w-[145px] max-w-[180px] truncate"
+              >
+                <option value="auto">
+                  {activeInst ? `Сборка: ${activeInst.gameVersion}` : 'Версия (Все)'}
+                </option>
+                <option value="all">Все версии</option>
+                <optgroup label="Популярные версии">
+                  {['1.21.4', '1.21.1', '1.20.4', '1.20.1', '1.19.4', '1.19.2', '1.18.2', '1.16.5', '1.12.2', '1.7.10'].map((ver) => (
+                    <option key={ver} value={ver}>{ver}</option>
+                  ))}
+                </optgroup>
+                <optgroup label="Официальные релизы">
+                  {mcVersions.filter(v => v.type === 'release').map((v) => (
+                    <option key={v.id} value={v.id}>{v.id}</option>
+                  ))}
+                </optgroup>
+                {showSnapshots && (
+                  <optgroup label="Снапшоты (Snapshots)">
+                    {mcVersions.filter(v => v.type === 'snapshot').map((v) => (
+                      <option key={v.id} value={v.id}>{v.id} (snapshot)</option>
+                    ))}
+                  </optgroup>
+                )}
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+            </div>
+            <div className="relative">
+              <select
+                value={customLoader}
+                onChange={(e) => setCustomLoader(e.target.value)}
+                className="appearance-none px-3 py-2 pr-8 bg-hiroki-card border border-hiroki-border rounded-xl text-xs text-slate-200 focus:outline-none focus:border-blue-500 cursor-pointer w-[130px]"
+              >
+                <option value="auto">
+                  {activeInst?.loaderType ? `Сборка (${activeInst.loaderType})` : 'Загрузчик'}
+                </option>
+                <option value="all">Все загрузчики</option>
+                <option value="fabric">Fabric</option>
+                <option value="forge">Forge</option>
+                <option value="neoforge">NeoForge</option>
+                <option value="quilt">Quilt</option>
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+            </div>
+          </div>
+          {source === 'modrinth' && category === 'mod' && (
+            <div className="flex flex-wrap gap-1.5 mt-1">
+              {TAG_OPTIONS.map((t) => {
+                const isActive = tags.includes(t.id);
+                return (
+                  <button
+                    key={t.id}
+                    onClick={() => setTags(prev => isActive ? prev.filter(x => x !== t.id) : [...prev, t.id])}
+                    className={`px-2 py-0.5 rounded text-[10px] font-semibold transition-colors border ${
+                      isActive 
+                        ? 'bg-[var(--blue)]/20 text-[var(--blue)] border-[var(--blue)]/40' 
+                        : 'bg-transparent text-slate-400 border-slate-700/50 hover:border-slate-500'
+                    }`}
+                  >
+                    {t.label}
+                  </button>
+                )
+              })}
+              {tags.length > 0 && (
+                <button 
+                  onClick={() => setTags([])}
+                  className="px-2 py-0.5 rounded text-[10px] font-semibold text-red-400/80 hover:text-red-400 transition-colors ml-auto"
+                >
+                  Сбросить
+                </button>
+              )}
+            </div>
+          )}
+        </div>
 
         {category !== 'modpack' && (
           <div className="flex items-center gap-2 w-full md:w-auto">
             <span className="text-xs text-slate-400 whitespace-nowrap">Устанавливать в:</span>
-            <select
-              value={targetInstanceId}
-              onChange={(e) => setTargetInstanceId(e.target.value)}
-              className="px-3 py-1.5 bg-hiroki-card border border-hiroki-border rounded-xl text-xs text-slate-200 focus:outline-none focus:border-blue-500"
-            >
-              {instances.map((i) => (
-                <option key={i.id} value={i.id}>
-                  {i.name} ({i.loaderType} {i.gameVersion})
-                </option>
-              ))}
-            </select>
+            <div className="relative flex-1 max-w-[200px]">
+              <select
+                value={targetInstanceId}
+                onChange={(e) => setTargetInstanceId(e.target.value)}
+                className="appearance-none w-full px-3 py-1.5 pr-8 bg-hiroki-card border border-hiroki-border rounded-xl text-xs text-slate-200 focus:outline-none focus:border-blue-500 cursor-pointer"
+              >
+                {instances.map((i) => (
+                  <option key={i.id} value={i.id}>
+                    {i.name} ({i.loaderType} {i.gameVersion})
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 pointer-events-none" />
+            </div>
           </div>
         )}
       </div>
@@ -411,7 +559,21 @@ const handleUninstall = async (item: ContentItem, explicitFilename?: string) => 
         </div>
       ) : results.length === 0 ? (
         <div className="flex-1 flex flex-col items-center justify-center p-8 rounded-2xl border border-dashed border-hiroki-border text-center">
-          <p className="text-xs text-slate-400">Ничего не найдено по данному запросу.</p>
+          <p className="text-sm font-bold text-slate-300 mb-1">Ничего не найдено</p>
+          <p className="text-xs text-slate-400 max-w-sm mb-4">
+            По текущему запросу или фильтрам версии ничего не найдено.
+          </p>
+          <button
+            onClick={() => {
+              setCustomVersion('all');
+              setCustomLoader('all');
+              setQuery('');
+              setTags([]);
+            }}
+            className="px-4 py-2 rounded-xl bg-[var(--card-inner)] border border-[var(--border)] hover:border-[var(--blue)] text-[var(--blue)] hover:text-white text-xs font-semibold transition-all"
+          >
+            Сбросить фильтры (Показать все моды)
+          </button>
         </div>
       ) : (
         <>

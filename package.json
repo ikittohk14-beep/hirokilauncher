@@ -1,6 +1,6 @@
 {
   "name": "hiroki-launcher",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Modern Minecraft Launcher optimized for CachyOS and driftwm (Wayland)",
   "type": "module",
   "main": "dist-electron/main/index.js",
@@ -21,7 +21,9 @@
     "prismarine-nbt": "^2.8.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
+    "react-grid-layout": "^2.2.4",
     "react-markdown": "^10.1.0",
+    "react-resizable": "^4.0.2",
     "tailwind-merge": "^2.5.4",
     "zustand": "^4.5.5"
   },
@@ -30,6 +32,8 @@
     "@types/node": "^22.7.5",
     "@types/react": "^18.3.11",
     "@types/react-dom": "^18.3.0",
+    "@types/react-grid-layout": "^2.1.0",
+    "@types/react-resizable": "^4.0.0",
     "@vitejs/plugin-react": "^4.3.2",
     "autoprefixer": "^10.4.20",
     "electron": "^33.0.2",
@@ -52,7 +56,10 @@
       "dist-electron/**/*"
     ],
     "win": {
-      "target": "nsis",
+      "target": [
+        "nsis",
+        "zip"
+      ],
       "icon": "build/icon.png"
     },
     "nsis": {
@@ -63,7 +70,10 @@
       "createStartMenuShortcut": true
     },
     "linux": {
-      "target": "tar.gz",
+      "target": [
+        "tar.gz",
+        "zip"
+      ],
       "icon": "build/icon.png",
       "category": "Game"
     }
