@@ -19,11 +19,13 @@ interface ElyByAuthResponse {
 export class AccountsService {
   private static instance: AccountsService;
   private accountsFilePath: string;
+  private backupFilePath: string;
   private accounts: Account[] = [];
 
   private constructor() {
     const baseDir = SettingsService.getInstance().getBaseDir();
     this.accountsFilePath = path.join(baseDir, 'accounts.json');
+    this.backupFilePath = path.join(baseDir, 'accounts.json.bak');
     this.loadAccounts();
   }
 
@@ -35,17 +37,40 @@ export class AccountsService {
   }
 
   private loadAccounts(): void {
+    // 1. Try primary accounts.json
     try {
       if (fs.existsSync(this.accountsFilePath)) {
         const data = fs.readFileSync(this.accountsFilePath, 'utf-8');
-        this.accounts = JSON.parse(data);
-      } else {
-        this.accounts = [];
+        if (data.trim()) {
+          this.accounts = JSON.parse(data);
+          if (!fs.existsSync(this.backupFilePath)) {
+            try {
+              fs.copyFileSync(this.accountsFilePath, this.backupFilePath);
+            } catch {}
+          }
+          return;
+        }
       }
     } catch (error) {
       console.error('[AccountsService] Failed to load accounts.json:', error);
-      this.accounts = [];
     }
+
+    // 2. Try backup accounts.json.bak
+    try {
+      if (fs.existsSync(this.backupFilePath)) {
+        const data = fs.readFileSync(this.backupFilePath, 'utf-8');
+        if (data.trim()) {
+          console.warn('[AccountsService] Restoring accounts from backup accounts.json.bak...');
+          this.accounts = JSON.parse(data);
+          this.saveAccounts();
+          return;
+        }
+      }
+    } catch (backupError) {
+      console.error('[AccountsService] Failed to load backup accounts:', backupError);
+    }
+
+    this.accounts = [];
   }
 
   private saveAccounts(): void {
@@ -54,7 +79,16 @@ export class AccountsService {
       if (!fs.existsSync(dir)) {
         fs.mkdirSync(dir, { recursive: true });
       }
-      fs.writeFileSync(this.accountsFilePath, JSON.stringify(this.accounts, null, 2), 'utf-8');
+      const tmpPath = `${this.accountsFilePath}.tmp.${Date.now()}`;
+      fs.writeFileSync(tmpPath, JSON.stringify(this.accounts, null, 2), 'utf-8');
+
+      if (fs.existsSync(this.accountsFilePath)) {
+        try {
+          fs.copyFileSync(this.accountsFilePath, this.backupFilePath);
+        } catch {}
+      }
+
+      fs.renameSync(tmpPath, this.accountsFilePath);
     } catch (error) {
       console.error('[AccountsService] Failed to save accounts:', error);
     }

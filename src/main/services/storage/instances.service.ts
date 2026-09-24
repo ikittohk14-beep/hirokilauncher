@@ -12,6 +12,16 @@ export class InstancesService {
   private static instance: InstancesService;
   private modsCache = new Map<string, any>();
 
+  private safeWriteJson(filePath: string, data: any): void {
+    const dir = path.dirname(filePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    const tmpPath = `${filePath}.tmp.${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    fs.writeFileSync(tmpPath, JSON.stringify(data, null, 2), 'utf-8');
+    fs.renameSync(tmpPath, filePath);
+  }
+
   public static getInstance(): InstancesService {
     if (!InstancesService.instance) {
       InstancesService.instance = new InstancesService();
@@ -91,7 +101,7 @@ export class InstancesService {
     if (changed) {
       const configPath = path.join(instanceDir, 'instance.json');
       try {
-        fs.writeFileSync(configPath, JSON.stringify(meta, null, 2));
+        this.safeWriteJson(configPath, meta);
       } catch (err) {
         console.error(`[InstancesService] Failed to save synced instance.json for ${meta.id}:`, err);
       }
@@ -262,7 +272,7 @@ export class InstancesService {
     const updated: InstanceMeta = { ...current, ...updates };
     try {
       const configPath = path.join(this.getInstanceDir(id), 'instance.json');
-      fs.writeFileSync(configPath, JSON.stringify(updated, null, 2), 'utf-8');
+      this.safeWriteJson(configPath, updated);
       return updated;
     } catch (error) {
       console.error(`[InstancesService] Failed to update instance ${id}:`, error);
@@ -343,6 +353,7 @@ export class InstancesService {
         const files = fs.readdirSync(dirPath, { withFileTypes: true });
         for (const dirent of files) {
           const file = dirent.name;
+          const isDir = dirent.isDirectory();
           const lowerFile = file.toLowerCase();
           const isModFile = (type === 'map' && isDir) || 
                             lowerFile.endsWith('.jar') || 

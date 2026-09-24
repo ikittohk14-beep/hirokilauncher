@@ -69,22 +69,34 @@ function createWindow(): BrowserWindow {
 // Native Wayland hardware acceleration enabled for smooth rendering under driftwm
 
 app.setPath('userData', pathNode.join(os.homedir(), '.config', 'hiroki-launcher'));
-app.whenReady().then(() => {
-  mainWindow = createWindow();
 
-  app.on('activate', () => {
-    if (BrowserWindow.getAllWindows().length === 0) {
-      mainWindow = createWindow();
+const gotTheLock = app.requestSingleInstanceLock();
+if (!gotTheLock) {
+  app.quit();
+} else {
+  app.on('second-instance', () => {
+    if (mainWindow) {
+      if (mainWindow.isMinimized()) mainWindow.restore();
+      mainWindow.focus();
     }
   });
 
-  registerIpcHandlers(mainWindow);
-  MusicService.getInstance().setWindow(mainWindow);
-  mainWindow.webContents.on('did-finish-load', () => {
-    MusicService.getInstance().startListening();
+  app.whenReady().then(() => {
+    mainWindow = createWindow();
+
+    app.on('activate', () => {
+      if (BrowserWindow.getAllWindows().length === 0) {
+        mainWindow = createWindow();
+      }
+    });
+
+    registerIpcHandlers(mainWindow);
+    MusicService.getInstance().setWindow(mainWindow);
+    mainWindow.webContents.on('did-finish-load', () => {
+      MusicService.getInstance().startListening();
+    });
   });
-        
-});
+}
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {

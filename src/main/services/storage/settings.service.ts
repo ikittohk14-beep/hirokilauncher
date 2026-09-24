@@ -6,6 +6,7 @@ import type { AppSettings } from '../../../preload/types';
 export class SettingsService {
   private static instance: SettingsService;
   private settingsFilePath: string;
+  private backupFilePath: string;
   private cachedSettings: AppSettings | null = null;
 
   private constructor() {
@@ -18,6 +19,7 @@ export class SettingsService {
       baseDir = path.join(dataHome, 'hiroki-launcher');
     }
     this.settingsFilePath = path.join(baseDir, 'settings.json');
+    this.backupFilePath = path.join(baseDir, 'settings.json.bak');
 
     try {
       if (!fs.existsSync(baseDir)) {
@@ -74,31 +76,89 @@ export class SettingsService {
     };
   }
 
+  private safeWriteJson(filePath: string, data: any, backupPath?: string): void {
+    const dir = path.dirname(filePath);
+    if (!fs.existsSync(dir)) {
+      fs.mkdirSync(dir, { recursive: true });
+    }
+    const tmpPath = `${filePath}.tmp.${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const jsonStr = JSON.stringify(data, null, 2);
+    fs.writeFileSync(tmpPath, jsonStr, 'utf-8');
+
+    // Create / update backup of existing valid file before replacing
+    if (backupPath && fs.existsSync(filePath)) {
+      try {
+        const existing = fs.readFileSync(filePath, 'utf-8');
+        if (existing.trim()) {
+          JSON.parse(existing); // Validate JSON before creating backup
+          fs.copyFileSync(filePath, backupPath);
+        }
+      } catch (e) {
+        // Current file might be invalid, do not overwrite a potentially good backup with corrupted data
+      }
+    }
+
+    fs.renameSync(tmpPath, filePath);
+  }
+
   public getSettings(): AppSettings {
     if (this.cachedSettings) {
       return this.cachedSettings;
     }
 
+    // 1. Try reading primary settings.json
     try {
       if (fs.existsSync(this.settingsFilePath)) {
         const fileContent = fs.readFileSync(this.settingsFilePath, 'utf-8');
-        const parsed = JSON.parse(fileContent);
-        const settings: AppSettings = { ...this.getDefaultSettings(), ...parsed };
-        this.cachedSettings = settings;
-        return settings;
+        if (fileContent.trim()) {
+          const parsed = JSON.parse(fileContent);
+          const settings: AppSettings = { ...this.getDefaultSettings(), ...parsed };
+          this.cachedSettings = settings;
+
+          // Ensure backup exists for future recovery
+          if (!fs.existsSync(this.backupFilePath)) {
+            try {
+              fs.copyFileSync(this.settingsFilePath, this.backupFilePath);
+            } catch {}
+          }
+          return settings;
+        }
       }
     } catch (error) {
-      console.error('[SettingsService] Error reading settings.json, reverting to defaults:', error);
+      console.error('[SettingsService] Error reading settings.json:', error);
     }
 
+    // 2. If primary failed or empty (e.g. crash during write), try restoring from backup
+    try {
+      if (fs.existsSync(this.backupFilePath)) {
+        const backupContent = fs.readFileSync(this.backupFilePath, 'utf-8');
+        if (backupContent.trim()) {
+          console.warn('[SettingsService] Crash detected: restoring settings from valid backup settings.json.bak...');
+          const parsed = JSON.parse(backupContent);
+          const settings: AppSettings = { ...this.getDefaultSettings(), ...parsed };
+          this.cachedSettings = settings;
+          this.safeWriteJson(this.settingsFilePath, settings);
+          return settings;
+        }
+      }
+    } catch (backupError) {
+      console.error('[SettingsService] Error reading backup settings.json.bak:', backupError);
+    }
+
+    // 3. If primary was corrupt, quarantine it so user data is not completely lost
+    if (fs.existsSync(this.settingsFilePath)) {
+      try {
+        const corruptPath = `${this.settingsFilePath}.corrupted_${Date.now()}`;
+        fs.renameSync(this.settingsFilePath, corruptPath);
+        console.warn(`[SettingsService] Preserved corrupted settings to ${corruptPath}`);
+      } catch {}
+    }
+
+    // 4. Fallback to defaults
     const defaults = this.getDefaultSettings();
     this.cachedSettings = defaults;
     try {
-      const dir = path.dirname(this.settingsFilePath);
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-      fs.writeFileSync(this.settingsFilePath, JSON.stringify(defaults, null, 2), 'utf-8');
+      this.safeWriteJson(this.settingsFilePath, defaults, this.backupFilePath);
     } catch (writeErr) {
       console.error('[SettingsService] Failed to write default settings:', writeErr);
     }
@@ -107,15 +167,10 @@ export class SettingsService {
 
   public saveSettings(newSettings: Partial<AppSettings>): AppSettings {
     try {
-      const current = this.cachedSettings || this.getDefaultSettings();
+      const current = this.cachedSettings || this.getSettings();
       const updated: AppSettings = { ...current, ...newSettings };
 
-      const dir = path.dirname(this.settingsFilePath);
-      if (!fs.existsSync(dir)) {
-        fs.mkdirSync(dir, { recursive: true });
-      }
-
-      fs.writeFileSync(this.settingsFilePath, JSON.stringify(updated, null, 2), 'utf-8');
+      this.safeWriteJson(this.settingsFilePath, updated, this.backupFilePath);
       this.cachedSettings = updated;
       return updated;
     } catch (error) {
