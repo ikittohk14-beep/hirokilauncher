@@ -1,6 +1,6 @@
 {
   "name": "hiroki-launcher",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Modern Minecraft Launcher optimized for CachyOS and driftwm (Wayland)",
   "type": "module",
   "main": "dist-electron/main/index.js",
