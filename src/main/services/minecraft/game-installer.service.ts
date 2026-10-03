@@ -436,11 +436,28 @@ export class GameInstallerService {
       if (!isInstalled) {
         if (onProgress) onProgress({ step: 'Установка ' + instance.loaderType + ' (это может занять пару минут)...', percentage: 75 });
         await new Promise<void>((resolve, reject) => {
-          const child = spawn('java', ['-Xmx4G', '-jar', installerPath, '--installClient', sharedDir]);
-          child.on('error', reject);
+          const javaPath = SettingsService.getInstance().getSettings().javaPath || 'java';
+          const child = spawn(javaPath, ['-Xmx4G', '-jar', installerPath, '--installClient', sharedDir]);
+          
+          let logOutput = '';
+          child.stdout?.on('data', (data) => {
+            const str = data.toString();
+            logOutput += str;
+            console.log(`[Installer] ${str.trim()}`);
+          });
+          child.stderr?.on('data', (data) => {
+            const str = data.toString();
+            logOutput += str;
+            console.error(`[Installer ERR] ${str.trim()}`);
+          });
+
+          child.on('error', (err) => reject(new Error(`Не удалось запустить Java (${javaPath}): ${err.message}`)));
           child.on('close', (code: number) => {
-            if (code === 0) resolve();
-            else reject(new Error(`Installer exited with code ${code}`));
+            if (code === 0) {
+              resolve();
+            } else {
+              reject(new Error(`Установщик завершился с ошибкой (код ${code}). Последние логи: ${logOutput.slice(-500)}`));
+            }
           });
         });
       }
